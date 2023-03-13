@@ -1,0 +1,42 @@
+export function getMeta() {
+  return {
+    type: "db",
+    canSave: true,
+    canEdit: true,
+    canAdmin: true,
+    canStar: true,
+    canDelete: true,
+    slug: "vscode",
+    url: "/d/editor/vscode",
+    expires: new Date().toISOString(),
+    created: new Date().toISOString(),
+    updated: new Date().toISOString(),
+    updatedBy: "admin",
+    createdBy: "admin",
+    version: 1,
+    hasAcl: false,
+    isFolder: false,
+    folderId: 0,
+    folderUid: "",
+    folderTitle: "General",
+    folderUrl: "",
+    provisioned: false,
+    provisionedExternalId: "",
+    annotationsPermissions: {
+      dashboard: {
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      },
+      organization: {
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      },
+    },
+    hasPublicDashboard: false,
+    publicDashboardAccessToken: "",
+    publicDashboardUid: "",
+    publicDashboardEnabled: false,
+  };
+}
