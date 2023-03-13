@@ -12,6 +12,7 @@ const user = "admin";
 const pass = "admin";
 const hostHead = "localhost:3000";
 
+let context: vscode.ExtensionContext;
 const app = express();
 const proxy = httpProxy.createProxyServer({ target: URL, ws: true });
 const server = http.createServer(app);
@@ -59,6 +60,10 @@ app.get("/api/search", function (req, res) {
   res.send([]);
 });
 
+app.get("/*grafana*.css", function (req, res) {
+  proxy.web(req, res, { selfHandleResponse: true });
+});
+
 app.get("/*", function (req, res) {
   console.log(`GET: ${req.url}`);
   proxy.web(req, res, {});
@@ -73,5 +78,37 @@ server.on("upgrade", function (req, socket, head) {
   console.log("proxying upgrade request", req.url);
   proxy.ws(req, socket, head);
 });
+
+proxy.on("proxyRes", function (proxyRes, req, res) {
+  const re = new RegExp(".*grafana.*.css");
+  if (req.url && re.test(req.url)) {
+    interceptResponse(proxyRes, res, (body) => {
+      const css = fs.readFileSync(
+        context.asAbsolutePath("public/iframe.css"),
+        "utf-8"
+      );
+      return body + css;
+    });
+  }
+});
+
+function interceptResponse(
+  proxyRes: http.IncomingMessage,
+  res: http.ServerResponse<http.IncomingMessage>,
+  bodyFunc: (body: string) => string
+) {
+  console.log("intercepting .css response");
+  let body = Buffer.from([]);
+  proxyRes.on("data", function (data) {
+    body = Buffer.concat([body, data]);
+  });
+  proxyRes.on("end", function () {
+    res.end(bodyFunc(body.toString("utf8")));
+  });
+}
+
+export function setContext(ctx: vscode.ExtensionContext) {
+  context = ctx;
+}
 
 export default server;

@@ -21,6 +21,7 @@ module.exports = require("fs");
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.setContext = void 0;
 const httpProxy = __webpack_require__(5);
 const express = __webpack_require__(30);
 const fs = __webpack_require__(2);
@@ -32,6 +33,7 @@ const URL = "http://localhost:3000";
 const user = "admin";
 const pass = "admin";
 const hostHead = "localhost:3000";
+let context;
 const app = express();
 const proxy = httpProxy.createProxyServer({ target: URL, ws: true });
 const server = http.createServer(app);
@@ -70,6 +72,9 @@ app.post("/api/dashboards/db/", function (req, res) {
 app.get("/api/search", function (req, res) {
     res.send([]);
 });
+app.get("/*grafana*.css", function (req, res) {
+    proxy.web(req, res, { selfHandleResponse: true });
+});
 app.get("/*", function (req, res) {
     console.log(`GET: ${req.url}`);
     proxy.web(req, res, {});
@@ -82,6 +87,29 @@ server.on("upgrade", function (req, socket, head) {
     console.log("proxying upgrade request", req.url);
     proxy.ws(req, socket, head);
 });
+proxy.on("proxyRes", function (proxyRes, req, res) {
+    const re = new RegExp(".*grafana.*.css");
+    if (req.url && re.test(req.url)) {
+        interceptResponse(proxyRes, res, (body) => {
+            const css = fs.readFileSync(context.asAbsolutePath("public/iframe.css"), "utf-8");
+            return body + css;
+        });
+    }
+});
+function interceptResponse(proxyRes, res, bodyFunc) {
+    console.log("intercepting .css response");
+    let body = Buffer.from([]);
+    proxyRes.on("data", function (data) {
+        body = Buffer.concat([body, data]);
+    });
+    proxyRes.on("end", function () {
+        res.end(bodyFunc(body.toString("utf8")));
+    });
+}
+function setContext(ctx) {
+    context = ctx;
+}
+exports.setContext = setContext;
 exports["default"] = server;
 
 
@@ -26935,8 +26963,8 @@ function getMeta(uid) {
         canSave: true,
         canEdit: true,
         canAdmin: true,
-        canStar: true,
-        canDelete: true,
+        canStar: false,
+        canDelete: false,
         slug: "editor",
         url: `/d/${uid}/editor`,
         expires: new Date().toISOString(),
@@ -27038,7 +27066,9 @@ const proxy_1 = __webpack_require__(3);
 // Your extension is activated the very first time the command is executed
 function activate(context) {
     // try to setup proxy
-    proxy_1.default.listen(3001);
+    proxy_1.default.listen(3001, () => {
+        (0, proxy_1.setContext)(context);
+    });
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "gitit" is now active!');

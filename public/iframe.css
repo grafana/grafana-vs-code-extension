@@ -1,0 +1,13 @@
+
+.sidemenu {
+  display: none !important;
+}
+
+[aria-label="Share dashboard or panel"] {
+  display: none !important;
+}
+
+[aria-label="Search links"] {
+   pointer-events: none;
+   cursor: default;
+}
