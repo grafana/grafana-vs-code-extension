@@ -11,8 +11,7 @@
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--disable-extensions",
-        "--proxy-server=\"http://localhost:8000\""
+        "--disable-extensions"
       ],
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "preLaunchTask": "${defaultBuildTask}"
@@ -26,7 +25,10 @@
         "--extensionTestsPath=${workspaceFolder}/out/test/suite/index",
         "--disable-extensions"
       ],
-      "outFiles": ["${workspaceFolder}/out/**/*.js", "${workspaceFolder}/dist/**/*.js"],
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js",
+        "${workspaceFolder}/dist/**/*.js"
+      ],
       "preLaunchTask": "tasks: watch-tests"
     }
   ]
