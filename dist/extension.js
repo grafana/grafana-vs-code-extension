@@ -26,6 +26,8 @@ const express = __webpack_require__(30);
 const fs = __webpack_require__(2);
 const http = __webpack_require__(4);
 const grafana = __webpack_require__(167);
+const vscode = __webpack_require__(1);
+const path = __webpack_require__(34);
 const URL = "http://localhost:3000";
 const user = "admin";
 const pass = "admin";
@@ -34,28 +36,39 @@ const app = express();
 const proxy = httpProxy.createProxyServer({ target: URL, ws: true });
 const server = http.createServer(app);
 app.get("/api/dashboards/uid/:uid", function (req, res) {
-    fs.readFile("dash.json", function (err, data) {
-        if (err) {
-            res.send("ERROR!");
-            return;
-        }
+    const document = vscode.workspace.textDocuments.find((d) => path.basename(d.fileName) === req.params.uid);
+    if (document) {
         res.send({
-            meta: grafana.getMeta(),
-            dashboard: JSON.parse(data.toString()),
+            meta: grafana.getMeta(req.params.uid),
+            dashboard: JSON.parse(document.getText()),
         });
-    });
+    }
+    else {
+        res.sendStatus(404);
+    }
 });
 app.post("/api/dashboards/db/", express.json());
 app.post("/api/dashboards/db/", function (req, res) {
-    fs.writeFile("dash.json", JSON.stringify(req.body.dashboard), { mode: 0o644 }, function () { });
-    res.send({
-        id: 2,
-        slug: "vscode",
-        status: "success",
-        uid: "editor",
-        url: "/d/editor/vscode",
-        version: 3,
-    });
+    console.log(req);
+    const fileName = req.headers.referer?.split("/")[4];
+    const document = vscode.workspace.textDocuments.find((d) => path.basename(d.fileName) === fileName);
+    if (document) {
+        fs.writeFileSync(document.uri.fsPath, JSON.stringify(req.body.dashboard, null, 2));
+        res.send({
+            id: 1,
+            slug: "editor",
+            status: "success",
+            uid: fileName,
+            url: `/d/${fileName}/editor`,
+            version: 1,
+        });
+    }
+    else {
+        res.sendStatus(404);
+    }
+});
+app.get("/api/search", function (req, res) {
+    res.send([]);
 });
 app.get("/*", function (req, res) {
     console.log(`GET: ${req.url}`);
@@ -69,7 +82,7 @@ server.on("upgrade", function (req, socket, head) {
     console.log("proxying upgrade request", req.url);
     proxy.ws(req, socket, head);
 });
-exports["default"] = app;
+exports["default"] = server;
 
 
 /***/ }),
@@ -26916,7 +26929,7 @@ function createRedirectDirectoryListener () {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getMeta = void 0;
-function getMeta() {
+function getMeta(uid) {
     return {
         type: "db",
         canSave: true,
@@ -26924,8 +26937,8 @@ function getMeta() {
         canAdmin: true,
         canStar: true,
         canDelete: true,
-        slug: "vscode",
-        url: "/d/editor/vscode",
+        slug: "editor",
+        url: `/d/${uid}/editor`,
         expires: new Date().toISOString(),
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
@@ -26936,7 +26949,7 @@ function getMeta() {
         isFolder: false,
         folderId: 0,
         folderUid: "",
-        folderTitle: "General",
+        folderTitle: "Editor",
         folderUrl: "",
         provisioned: false,
         provisionedExternalId: "",
@@ -27019,6 +27032,7 @@ exports.deactivate = exports.activate = void 0;
 // Import the module and reference it with the alias vscode in your code below
 const vscode = __webpack_require__(1);
 const fs = __webpack_require__(2);
+const path = __webpack_require__(34);
 const proxy_1 = __webpack_require__(3);
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -27029,12 +27043,17 @@ function activate(context) {
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "gitit" is now active!');
     let disposable = vscode.commands.registerCommand("gitit.openUrl", () => {
-        const panel = vscode.window.createWebviewPanel("webview", "My WebView", vscode.ViewColumn.One, {});
-        const webviewContent = fs.readFileSync(context.asAbsolutePath("src/webview.html"), "utf-8");
-        panel.webview.html = webviewContent;
-        panel.webview.options = {
-            enableScripts: true,
-        };
+        const panel = vscode.window.createWebviewPanel("webview", "Dashboard Editor", vscode.ViewColumn.One, {});
+        const fileName = vscode.window.activeTextEditor?.document.fileName;
+        if (fileName) {
+            const webviewContent = fs
+                .readFileSync(context.asAbsolutePath("public/webview.html"), "utf-8")
+                .replace("${fileName}", path.basename(fileName));
+            panel.webview.html = webviewContent;
+            panel.webview.options = {
+                enableScripts: true,
+            };
+        }
     });
     context.subscriptions.push(disposable);
 }

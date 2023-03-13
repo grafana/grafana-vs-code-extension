@@ -1,4 +1,4 @@
-export function getMeta() {
+export function getMeta(uid: string) {
   return {
     type: "db",
     canSave: true,
@@ -6,8 +6,8 @@ export function getMeta() {
     canAdmin: true,
     canStar: true,
     canDelete: true,
-    slug: "vscode",
-    url: "/d/editor/vscode",
+    slug: "editor",
+    url: `/d/${uid}/editor`,
     expires: new Date().toISOString(),
     created: new Date().toISOString(),
     updated: new Date().toISOString(),
@@ -18,7 +18,7 @@ export function getMeta() {
     isFolder: false,
     folderId: 0,
     folderUid: "",
-    folderTitle: "General",
+    folderTitle: "Editor",
     folderUrl: "",
     provisioned: false,
     provisionedExternalId: "",

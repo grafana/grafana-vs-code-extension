@@ -3,6 +3,8 @@ import * as express from "express";
 import * as fs from "fs";
 import * as http from "http";
 import * as grafana from "./grafana";
+import * as vscode from "vscode";
+import * as path from "path";
 
 const URL = "http://localhost:3000";
 
@@ -15,34 +17,46 @@ const proxy = httpProxy.createProxyServer({ target: URL, ws: true });
 const server = http.createServer(app);
 
 app.get("/api/dashboards/uid/:uid", function (req, res) {
-  fs.readFile("dash.json", function (err, data) {
-    if (err) {
-      res.send("ERROR!");
-      return;
-    }
+  const document = vscode.workspace.textDocuments.find(
+    (d) => path.basename(d.fileName) === req.params.uid
+  );
+  if (document) {
     res.send({
-      meta: grafana.getMeta(),
-      dashboard: JSON.parse(data.toString()),
+      meta: grafana.getMeta(req.params.uid),
+      dashboard: JSON.parse(document.getText()),
     });
-  });
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 app.post("/api/dashboards/db/", express.json());
 app.post("/api/dashboards/db/", function (req, res) {
-  fs.writeFile(
-    "dash.json",
-    JSON.stringify(req.body.dashboard),
-    { mode: 0o644 },
-    function () {}
+  console.log(req);
+  const fileName = req.headers.referer?.split("/")[4];
+  const document = vscode.workspace.textDocuments.find(
+    (d) => path.basename(d.fileName) === fileName
   );
-  res.send({
-    id: 2,
-    slug: "vscode",
-    status: "success",
-    uid: "editor",
-    url: "/d/editor/vscode",
-    version: 3,
-  });
+  if (document) {
+    fs.writeFileSync(
+      document.uri.fsPath,
+      JSON.stringify(req.body.dashboard, null, 2)
+    );
+    res.send({
+      id: 1,
+      slug: "editor",
+      status: "success",
+      uid: fileName,
+      url: `/d/${fileName}/editor`,
+      version: 1,
+    });
+  } else {
+    res.sendStatus(404);
+  }
+});
+
+app.get("/api/search", function (req, res) {
+  res.send([]);
 });
 
 app.get("/*", function (req, res) {
@@ -60,4 +74,4 @@ server.on("upgrade", function (req, socket, head) {
   proxy.ws(req, socket, head);
 });
 
-export default app;
+export default server;

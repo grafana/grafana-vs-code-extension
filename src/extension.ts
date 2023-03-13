@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import * as fs from "fs";
+import * as path from "path";
 import proxy from "./proxy";
 
 // This method is called when your extension is activated
@@ -16,19 +17,22 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand("gitit.openUrl", () => {
     const panel = vscode.window.createWebviewPanel(
       "webview",
-      "My WebView",
+      "Dashboard Editor",
       vscode.ViewColumn.One,
       {}
     );
-    const webviewContent = fs.readFileSync(
-      context.asAbsolutePath("src/webview.html"),
-      "utf-8"
-    );
 
-    panel.webview.html = webviewContent;
-    panel.webview.options = {
-      enableScripts: true,
-    };
+    const fileName = vscode.window.activeTextEditor?.document.fileName;
+    if (fileName) {
+      const webviewContent = fs
+        .readFileSync(context.asAbsolutePath("public/webview.html"), "utf-8")
+        .replace("${fileName}", path.basename(fileName));
+
+      panel.webview.html = webviewContent;
+      panel.webview.options = {
+        enableScripts: true,
+      };
+    }
   });
 
   context.subscriptions.push(disposable);
