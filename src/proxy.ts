@@ -17,10 +17,21 @@ const app = express();
 const proxy = httpProxy.createProxyServer({ target: URL, ws: true });
 const server = http.createServer(app);
 
+// Remove file extension from a string
+// TODO check if dashboard UIDs can have dots in them, a it will break this logic
+const trimExtension = (fileName: string) => {
+  if (!fileName) {
+    return "";
+  }
+
+  return fileName.split('.')[0];
+};
+
 app.get("/api/dashboards/uid/:uid", function (req, res) {
   const document = vscode.workspace.textDocuments.find(
-    (d) => path.basename(d.fileName) === req.params.uid
+    (d) => trimExtension(path.basename(d.fileName)) === trimExtension(req.params.uid)
   );
+
   if (document) {
     res.send({
       meta: grafana.getMeta(req.params.uid),
