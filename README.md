@@ -2,6 +2,8 @@
 
 gitit is an extenstion for VSCode that allows you to view, edit, and preview a dashboard in a running instance of grafana without opening a browser - and without having to save the changes remotely before you are done!
 
+The name `gitit` is a reference to ideas around meaningful git workflows for Grafana. This extension gives you support for Git (and any other version control system for that matter). If it is available in VSCode, it is available for you immediately.
+
 ## Features
 
 - reads a dashboard JSON you have locally
