@@ -39,7 +39,7 @@ export function activate(ctx: vscode.ExtensionContext) {
       vscode.workspace.openTextDocument(fileName).then((doc) => {
         vscode.window.showTextDocument(doc);
         // TODO remove if dashboard is shown in the extension window
-        vscode.env.openExternal(vscode.Uri.parse(`http://localhost:3001/d/${path.basename(fileName)}`));
+       // vscode.env.openExternal(vscode.Uri.parse(`http://localhost:3001/d/${path.basename(fileName)}`));
       });
     }
   });
