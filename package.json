@@ -21,6 +21,12 @@
       }
     ],
       "menus": {
+        "commandPalette": [
+          {
+              "command": "gitit.openUrl",
+              "when": "false"
+          }
+      ],
         "explorer/context": [{
             "command": "gitit.openUrl"
       }]

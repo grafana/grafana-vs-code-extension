@@ -23,7 +23,7 @@ export function activate(ctx: vscode.ExtensionContext) {
       {}
     );
 
-    const fileName = uri?.fsPath; //vscode.window.activeTextEditor?.document.fileName;
+    const fileName = uri?.fsPath;
 
     if (fileName) {
       const webviewContent = fs
