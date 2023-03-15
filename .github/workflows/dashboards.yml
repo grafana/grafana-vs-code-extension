@@ -26,14 +26,15 @@ jobs:
           tmp=$(mktemp)
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             uid=$(jq -r '.uid' $file)
-            info=$(curl -H "Authorization: Bearer $GRAFANA_API_TOKEN" https://guicaulada.grafana.net/api/dashboards/uid/$uid)
+            info=$(curl -H "Authorization: Bearer $GRAFANA_API_TOKEN" $GRAFANA_INSTANCE_URL/api/dashboards/uid/$uid)
             folderUid=$(echo $info | jq -r '.meta.folderUid')
             currentVersion=$(echo $info | jq -r '.meta.version')
             newVersion=$((currentVersion + 1))
             jq --argjson v $newVersion '.version = $v' $file > $tmp && mv $tmp $file
-            curl -X POST https://reqbin.com/echo/post/json -H "Authorization: Bearer $GRAFANA_API_TOKEN" -d '{"dashboard":"$(cat $file)","folderUid":"$folderUid","overwrite":true,"message":"$COMMIT_MESSAGE"}'
+            curl -X POST $GRAFANA_INSTANCE_URL/api/dashboards/db  -H "Authorization: Bearer $GRAFANA_API_TOKEN" -d '{"dashboard":$(cat $file),"folderUid":"$folderUid","overwrite":true,"message":"$COMMIT_MESSAGE"}'
           done
         env:
+          GRAFANA_INSTANCE_URL: ${{ secrets.GRAFANA_INSTANCE_URL }}
           GRAFANA_API_TOKEN: ${{ secrets.GRAFANA_API_TOKEN }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       
