@@ -26,14 +26,14 @@
       }]
     },
     "configuration": {
-      "title": "Proxy",
+      "title": "GitIt",
       "properties": {
-        "gitit.proxyURL": {
+        "gitit.URL": {
           "type": "string",
           "default": "http://localhost:3000",
-          "description": "Proxy URL"
+          "description": "grafana instance URL"
         },
-        "gitit.proxyCookie": {
+        "gitit.cookie": {
           "type": "string",
           "default": "",
           "description": "active grafana_session cookie"
