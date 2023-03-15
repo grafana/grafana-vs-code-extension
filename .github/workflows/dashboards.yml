@@ -32,6 +32,7 @@ jobs:
             newVersion=$((currentVersion + 1))
             jq --argjson v $newVersion '.version = $v' $file > $tmp && mv $tmp $file
             dashboardJson='{"dashboard":'"$(cat $file)"',"folderUid":"$folderUid","overwrite":true,"message":"$COMMIT_MESSAGE"}'
+            echo $dashboardJson
             curl -X POST $GRAFANA_INSTANCE_URL/api/dashboards/db  -H "Authorization: Bearer $GRAFANA_API_TOKEN" -d "$dashboardJson"
           done
         env:
