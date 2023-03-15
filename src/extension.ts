@@ -14,7 +14,8 @@ export function activate(ctx: vscode.ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "gitit" is now active!');
-  let disposable = vscode.commands.registerCommand("gitit.openUrl", () => {
+  let disposable = vscode.commands.registerCommand("gitit.openUrl", (uri:vscode.Uri) => {
+
     const panel = vscode.window.createWebviewPanel(
       "webview",
       "Dashboard Editor",
@@ -22,7 +23,8 @@ export function activate(ctx: vscode.ExtensionContext) {
       {}
     );
 
-    const fileName = vscode.window.activeTextEditor?.document.fileName;
+    const fileName = uri?.fsPath; //vscode.window.activeTextEditor?.document.fileName;
+
     if (fileName) {
       const webviewContent = fs
         .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
@@ -32,6 +34,13 @@ export function activate(ctx: vscode.ExtensionContext) {
       panel.webview.options = {
         enableScripts: true,
       };
+      
+      
+      vscode.workspace.openTextDocument(fileName).then((doc) => {
+        vscode.window.showTextDocument(doc);
+        // TODO remove if dashboard is shown in the extension window
+        vscode.env.openExternal(vscode.Uri.parse(`http://localhost:3001/d/${path.basename(fileName)}`));
+      });
     }
   });
 

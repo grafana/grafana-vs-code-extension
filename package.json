@@ -17,9 +17,14 @@
     "commands": [
       {
         "command": "gitit.openUrl",
-        "title": "Open Grafana"
+        "title": "Edit in Grafana"
       }
-    ]
+    ],
+      "menus": {
+        "explorer/context": [{
+            "command": "gitit.openUrl"
+      }]
+    }
   },
   "scripts": {
     "vscode:prepublish": "yarn run package",

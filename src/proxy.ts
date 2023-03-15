@@ -51,7 +51,7 @@ export function setup(
       method: "POST",
     });
     const json = await result.json();
-    console.log(json);
+    //console.log(json);
     res.send(json);
   });
 
