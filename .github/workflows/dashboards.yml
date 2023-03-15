@@ -27,11 +27,10 @@ jobs:
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             uid=$(jq -r '.uid' $file)
             info=$(curl -H "Authorization: Bearer $GRAFANA_API_TOKEN" $GRAFANA_INSTANCE_URL/api/dashboards/uid/$uid)
-            folderUid=$(echo $info | jq -r '.meta.folderUid')
             currentVersion=$(echo $info | jq -r '.meta.version')
             newVersion=$((currentVersion + 1))
             jq --argjson v $newVersion '.version = $v' $file > $tmp && mv $tmp $file
-            dashboardJson='{"dashboard":'"$(cat $file)"',"folderUid":"'"$folderUid"'","overwrite":true,"message":"'"$COMMIT_MESSAGE"'"}'
+            dashboardJson='{"dashboard":'"$(cat $file)"',"message":"'"$COMMIT_MESSAGE"'"}'
             echo $dashboardJson
             curl -X POST $GRAFANA_INSTANCE_URL/api/dashboards/db  -H "Authorization: Bearer $GRAFANA_API_TOKEN" -d "$dashboardJson"
           done
