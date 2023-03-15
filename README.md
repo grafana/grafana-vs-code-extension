@@ -36,7 +36,7 @@ gitit is an extenstion for VSCode that allows you to view, edit, and preview a d
 - save the changes
 - see your changes in the JSON file you used to open the editor
 
-The changes are not saved anywhere else. The editor is for local preview and editing only. 
+The changes are not saved in Grafana. The editor is for local preview and editing only. 
 
 ## Extension Settings
 
