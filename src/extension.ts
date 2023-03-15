@@ -14,35 +14,36 @@ export function activate(ctx: vscode.ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "gitit" is now active!');
-  let disposable = vscode.commands.registerCommand("gitit.openUrl", (uri:vscode.Uri) => {
+  let disposable = vscode.commands.registerCommand(
+    "gitit.openUrl",
+    (uri: vscode.Uri) => {
+      const panel = vscode.window.createWebviewPanel(
+        "webview",
+        "Dashboard Editor",
+        vscode.ViewColumn.One,
+        {}
+      );
 
-    const panel = vscode.window.createWebviewPanel(
-      "webview",
-      "Dashboard Editor",
-      vscode.ViewColumn.One,
-      {}
-    );
+      const fileName = uri?.fsPath;
 
-    const fileName = uri?.fsPath;
+      if (fileName) {
+        const webviewContent = fs
+          .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
+          .replace("${fileName}", path.basename(fileName));
 
-    if (fileName) {
-      const webviewContent = fs
-        .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
-        .replace("${fileName}", path.basename(fileName));
+        panel.webview.html = webviewContent;
+        panel.webview.options = {
+          enableScripts: true,
+        };
 
-      panel.webview.html = webviewContent;
-      panel.webview.options = {
-        enableScripts: true,
-      };
-      
-      
-      vscode.workspace.openTextDocument(fileName).then((doc) => {
-        vscode.window.showTextDocument(doc);
-        // TODO remove if dashboard is shown in the extension window
-       // vscode.env.openExternal(vscode.Uri.parse(`http://localhost:3001/d/${path.basename(fileName)}`));
-      });
+        //   TODO remove if dashboard is shown in the extension window
+        // vscode.workspace.openTextDocument(fileName).then((doc) => {
+        //   vscode.window.showTextDocument(doc);
+        //   vscode.env.openExternal(vscode.Uri.parse(`http://localhost:3001/d/${path.basename(fileName)}`));
+        // });
+      }
     }
-  });
+  );
 
   ctx.subscriptions.push(disposable);
 }
