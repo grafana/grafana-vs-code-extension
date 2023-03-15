@@ -3,20 +3,19 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import proxy, { setContext } from "./proxy";
+import * as proxy from "./proxy";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export function activate(ctx: vscode.ExtensionContext) {
   // try to setup proxy
-  proxy.listen(3001, () => {
-    setContext(context);
-  });
+  proxy.setup(ctx, 3001, () => console.log("proxy is ready"));
 
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "gitit" is now active!');
-  let disposable = vscode.commands.registerCommand("gitit.openUrl", () => {
+  let disposable = vscode.commands.registerCommand("gitit.openUrl", (uri:vscode.Uri) => {
+
     const panel = vscode.window.createWebviewPanel(
       "webview",
       "Dashboard Editor",
@@ -24,20 +23,28 @@ export function activate(context: vscode.ExtensionContext) {
       {}
     );
 
-    const fileName = vscode.window.activeTextEditor?.document.fileName;
+    const fileName = uri?.fsPath; //vscode.window.activeTextEditor?.document.fileName;
+
     if (fileName) {
       const webviewContent = fs
-        .readFileSync(context.asAbsolutePath("public/webview.html"), "utf-8")
+        .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
         .replace("${fileName}", path.basename(fileName));
 
       panel.webview.html = webviewContent;
       panel.webview.options = {
         enableScripts: true,
       };
+      
+      
+      vscode.workspace.openTextDocument(fileName).then((doc) => {
+        vscode.window.showTextDocument(doc);
+        // TODO remove if dashboard is shown in the extension window
+        vscode.env.openExternal(vscode.Uri.parse(`http://localhost:3001/d/${path.basename(fileName)}`));
+      });
     }
   });
 
-  context.subscriptions.push(disposable);
+  ctx.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated
