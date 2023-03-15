@@ -14,9 +14,9 @@ export function activate(ctx: vscode.ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "gitit" is now active!');
-  let disposable = vscode.commands.registerCommand(
-    "gitit.openUrl",
-    (uri: vscode.Uri) => {
+
+  ctx.subscriptions.push(
+    vscode.commands.registerCommand("gitit.openUrl", (uri: vscode.Uri) => {
       const panel = vscode.window.createWebviewPanel(
         "webview",
         "Dashboard Editor",
@@ -42,10 +42,66 @@ export function activate(ctx: vscode.ExtensionContext) {
         //   vscode.env.openExternal(vscode.Uri.parse(`http://localhost:3001/d/${path.basename(fileName)}`));
         // });
       }
-    }
+    })
   );
 
-  ctx.subscriptions.push(disposable);
+  ctx.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor(async (e) => {
+      if (
+        e &&
+        e.document &&
+        vscode.workspace.getConfiguration("gitit").get("message")
+      ) {
+        try {
+          const json = JSON.parse(e.document.getText());
+          const dashboardAttributes = [
+            "annotations",
+            "editable",
+            "fiscalYearStartMonth",
+            "graphTooltip",
+            "id",
+            "links",
+            "liveNow",
+            "panels",
+            "refresh",
+            "revision",
+            "schemaVersion",
+            "style",
+            "tags",
+            "templating",
+            "time",
+            "timepicker",
+            "timezone",
+            "title",
+            "uid",
+            "version",
+            "weekStart",
+          ];
+          for (const attribute of dashboardAttributes) {
+            if (json[attribute] === undefined) {
+              console.log("document missing attribute", attribute);
+              return;
+            }
+          }
+          const message =
+            "This looks like a Grafana dashboard, would you like to open it with the Grafana Editor?";
+          const response = await vscode.window.showInformationMessage(
+            message,
+            { modal: false },
+            { title: "Yes" },
+            { title: "No" },
+            { title: "Don't show again" }
+          );
+          if (response && response.title === "Yes") {
+            vscode.commands.executeCommand("gitit.openUrl", e.document.uri);
+          }
+          if (response && response.title === "Don't show again") {
+            vscode.workspace.getConfiguration("gitit").update("message", false);
+          }
+        } catch {}
+      }
+    })
+  );
 }
 
 // This method is called when your extension is deactivated
