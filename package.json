@@ -30,6 +30,21 @@
         "explorer/context": [{
             "command": "gitit.openUrl"
       }]
+    },
+    "configuration": {
+      "title": "GitIt",
+      "properties": {
+        "gitit.URL": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "grafana instance URL"
+        },
+        "gitit.cookie": {
+          "type": "string",
+          "default": "",
+          "description": "active grafana_session cookie"
+        }
+      }
     }
   },
   "scripts": {
