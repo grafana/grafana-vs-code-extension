@@ -16,7 +16,7 @@ jobs:
 
       - name: Get changed dashboards
         id: changed-dashboards
-        uses: tj-actions/changed-files@v355
+        uses: tj-actions/changed-files@v35
         with:
           files: dashboards/**.json
 
