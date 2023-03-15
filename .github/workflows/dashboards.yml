@@ -31,7 +31,8 @@ jobs:
             currentVersion=$(echo $info | jq -r '.meta.version')
             newVersion=$((currentVersion + 1))
             jq --argjson v $newVersion '.version = $v' $file > $tmp && mv $tmp $file
-            curl -X POST $GRAFANA_INSTANCE_URL/api/dashboards/db  -H "Authorization: Bearer $GRAFANA_API_TOKEN" -d '{"dashboard":$(cat $file),"folderUid":"$folderUid","overwrite":true,"message":"$COMMIT_MESSAGE"}'
+            dashboardJson='{"dashboard":'"$(cat $file)"',"folderUid":"$folderUid","overwrite":true,"message":"$COMMIT_MESSAGE"}'
+            curl -X POST $GRAFANA_INSTANCE_URL/api/dashboards/db  -H "Authorization: Bearer $GRAFANA_API_TOKEN" -d $dashboardJson
           done
         env:
           GRAFANA_INSTANCE_URL: ${{ secrets.GRAFANA_INSTANCE_URL }}
