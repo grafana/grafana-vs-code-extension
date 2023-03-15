@@ -8,6 +8,8 @@ import * as proxy from "./proxy";
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(ctx: vscode.ExtensionContext) {
+  const openedFiles = new Set();
+
   // try to setup proxy
   proxy.setup(ctx, 3001, () => console.log("proxy is ready"));
 
@@ -27,6 +29,7 @@ export function activate(ctx: vscode.ExtensionContext) {
       const fileName = uri?.fsPath;
 
       if (fileName) {
+        openedFiles.add(fileName);
         const webviewContent = fs
           .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
           .replace("${fileName}", path.basename(fileName));
@@ -35,6 +38,10 @@ export function activate(ctx: vscode.ExtensionContext) {
         panel.webview.options = {
           enableScripts: true,
         };
+
+        panel.onDidDispose(() => {
+          openedFiles.delete(fileName);
+        });
 
         //   TODO remove if dashboard is shown in the extension window
         // vscode.workspace.openTextDocument(fileName).then((doc) => {
@@ -50,6 +57,7 @@ export function activate(ctx: vscode.ExtensionContext) {
       if (
         e &&
         e.document &&
+        !openedFiles.has(e.document.uri.fsPath) &&
         vscode.workspace.getConfiguration("gitit").get("message")
       ) {
         try {
