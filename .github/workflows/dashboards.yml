@@ -32,7 +32,7 @@ jobs:
             jq --argjson v $newVersion '.version = $v' $file > $tmp && mv $tmp $file
             dashboardJson='{"dashboard":'"$(jq -c . $file)"',"message":"'"$COMMIT_MESSAGE"'"}'
             echo $dashboardJson
-            curl -X POST $GRAFANA_INSTANCE_URL/api/dashboards/db  -H "Authorization: Bearer $GRAFANA_API_TOKEN" -d "$dashboardJson"
+            curl -X POST $GRAFANA_INSTANCE_URL/api/dashboards/db -H "Content-Type: application/json" -H "Authorization: Bearer $GRAFANA_API_TOKEN" -d "$dashboardJson"
           done
         env:
           GRAFANA_INSTANCE_URL: ${{ secrets.GRAFANA_INSTANCE_URL }}
