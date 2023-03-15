@@ -14,10 +14,11 @@ export function setup(
   port: number,
   cb: () => void
 ) {
-  const sett = vscode.workspace.getConfiguration("gitit");
+  const settings = vscode.workspace.getConfiguration("gitit");
+  const URL = String(settings.get("URL"));
+  const GRAFANA_SESSION = String(settings.get("cookie"));
+
   const HOST = `http://localhost:${port}`;
-  const URL = "https://guicaulada.grafana.net";
-  const GRAFANA_SESSION = "8a0a144d5308cc5cb76fdc013cca329f";
 
   const app = express();
   const server = http.createServer(app);
@@ -99,7 +100,6 @@ export function setup(
 
   wss.on("connection", function (ws) {
     console.log("handling websocket connection");
-    console.log("sett: ", sett.get("gitit"));
     ws.on("message", function (message) {
       ws.send(message);
     });
