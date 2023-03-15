@@ -8,6 +8,24 @@
 }
 
 [aria-label="Search links"] {
-   pointer-events: none;
-   cursor: default;
+  pointer-events: none;
+  cursor: default;
+}
+
+[aria-label="Breadcrumbs"] {
+  pointer-events: none;
+  cursor: default;
+}
+
+[aria-label="Toggle menu"] {
+  pointer-events: none;
+  cursor: default;
+}
+
+[title="Toggle top search bar"] {
+  display: none !important;
+}
+
+.main-view > div:first-of-type > div:first-of-type {
+  display: none !important;
 }
