@@ -1,71 +1,57 @@
 # gitit README
 
-This is the README for your extension "gitit". After writing up a brief description, we recommend including the following sections.
+gitit is an extenstion for VSCode that allows you to view, edit, and preview a dashboard in a running instance of grafana without opening a browser - and without having to save the changes remotely before you are done!
+
+The name `gitit` is a reference to ideas around meaningful git workflows for Grafana. This extension gives you support for Git (and any other version control system for that matter). If it is available in VSCode, it is available for you immediately.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- reads a dashboard JSON you have locally
+- opens the dashboard configured in the JSON in a running grafana instance
+- allows you to edit the dashboard from the UI
+- saves your changes to _your_ JSON when you hit "Save dashboard" in the webview
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- have a dashboard JSON handy
+- have a running instance of grafana locally _or_ have access to a hosted grafana instance
+- it is best if you use an instance of grafana that has this dashboard because otherwise some parts of it that use its UID won't load for you
+- it is best if the datasources that the dashboard references are available (and named the same) on the Grafana instance you are pointing at
+
+## Usage:
+
+#### Setup
+- `yarn install` in this repo
+- have a JSON file of a dashboard on your machine
+
+#### Run
+1. open VSCode Run and Debug and run extension, or press `F5` anywhere 
+2. go to the just opened Extension Development Host
+3. go to your dashboard JSON file
+4. right-click on the file and choose `Edit in Grafana`.
+5. open the Dashboard Editor in the Extension Development Host and see your dashboard*
+
+*If you cannot see your dashboard, go to the browser tab which is open together with the Dashboard Editor when you hit `Edit in Grafana`. Login and see your `grafana_session` cookie. Copy it and paste in your VSCode settings `GitIt: Cookie` or in your settings json as "`gitit.cookie`". Rerun the extension and repeat above steps. 
+
+#### Play
+- edit your dashboard 
+- save the changes
+- see your changes in the JSON file you used to open the editor
+
+The changes are not saved in Grafana. The editor is for local preview and editing only. 
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+* `gitit.URL`: Set the URL of the grafana instance your dashboard lives on. Defaults to 'http://localhost:3000'.
+* `gitit.cookie`: Set value of an active `grafana_session` cookie.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+If you are using a hosted grafana instance, you need to setup the following configuration in it:
+```
+[security]
+cookie_secure = true
+cookie_samesite = none
+allow_embedding = true
+```
 
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
