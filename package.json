@@ -24,6 +24,21 @@
         "explorer/context": [{
             "command": "gitit.openUrl"
       }]
+    },
+    "configuration": {
+      "title": "Proxy",
+      "properties": {
+        "gitit.proxyURL": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "Proxy URL"
+        },
+        "gitit.proxyCookie": {
+          "type": "string",
+          "default": "",
+          "description": "active grafana_session cookie"
+        }
+      }
     }
   },
   "scripts": {
