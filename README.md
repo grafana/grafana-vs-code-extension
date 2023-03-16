@@ -31,7 +31,7 @@ The name `gitit` is a reference to ideas around meaningful git workflows for Gra
 4. right-click on the file and choose `Edit in Grafana`.
 5. open the Dashboard Editor in the Extension Development Host and see your dashboard*
 
-*If you cannot see your dashboard, go to the browser tab which is open together with the Dashboard Editor when you hit `Edit in Grafana`. Login and see your `grafana_session` cookie. Copy it and paste in your VSCode settings `GitIt: Cookie` or in your settings json as "`gitit.cookie`". Rerun the extension and repeat above steps. 
+*If you cannot see your dashboard, go to your browser and load http://localhost:3001. Login and see your `grafana_session` cookie. Copy it and paste in your VSCode settings `GitIt: Cookie` or in your settings json as "`gitit.cookie`". Rerun the extension and repeat above steps. 
 
 #### Play
 - edit your dashboard 
