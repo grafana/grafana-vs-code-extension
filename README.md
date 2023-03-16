@@ -42,8 +42,8 @@ The changes are not saved in Grafana. The editor is for local preview and editin
 
 ## Extension Settings
 
-* `gitit.URL`: Set the URL of the grafana instance your dashboard lives on. Defaults to 'http://localhost:3000'.
-* `gitit.cookie`: Set value of an active `grafana_session` cookie.
+* `gitit.URL`: Set the URL of the grafana instance you want to open the dashboard in. Defaults to 'http://localhost:3000'.
+* `gitit.cookie`: Set value of an active `grafana_session` cookie. Defaults to empty string.
 
 ## Known Issues
 
