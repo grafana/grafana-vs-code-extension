@@ -1,36 +1,36 @@
 import * as express from "express";
 import * as fs from "fs";
-import * as path from "path";
 import { Server } from "http";
+import * as cors from "cors";
 
 const app = express();
 
 // Enable JSON body parsing middleware
 app.use(express.json());
+app.use(cors());
 
 // This is a global variable that will store the current file name
 let currentFileName: string | null = null;
 
-app.post("save-dashboard", (req, res) => {
+app.post("/save-dashboard", (req, res) => {
   const data = req.body;
 
-  console.log("got data", data, currentFileName);
   // Check if a file name has been set
   if (!currentFileName) {
     console.error("No file name set");
     res.sendStatus(500); // Send a 500 Internal Server Error response if no file name has been set
     return;
   }
-  const filePath = path.join(__dirname, "dashboards", currentFileName);
-  const jsonData = JSON.stringify(data, null, 2);
+
+  const jsonData = JSON.stringify(data.dashboard, null, 2);
 
   // Write the JSON string to a file
-  fs.writeFile(filePath, jsonData, (err) => {
+  fs.writeFile(currentFileName, jsonData, "utf-8", (err) => {
     if (err) {
       console.error("Error writing file:", err);
-      res.sendStatus(500); // Send a 500 Internal Server Error response if something goes wrong
+      res.sendStatus(500);
     } else {
-      res.sendStatus(200); // Send a 200 OK response if the file is written successfully
+      res.sendStatus(200);
     }
   });
 });

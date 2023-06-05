@@ -27,6 +27,7 @@ export function activate(ctx: vscode.ExtensionContext) {
       const fileName = uri?.fsPath;
 
       if (fileName) {
+        setCurrentFileName(fileName);
         openedFiles.add(fileName);
         const data = fs.readFileSync(fileName, "utf-8");
 
