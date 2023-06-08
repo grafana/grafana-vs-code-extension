@@ -11,6 +11,7 @@ app.use(cors());
 
 // This is a global variable that will store the current file name
 let currentFileName: string | null = null;
+let json: string | null = null;
 
 app.post("/save-dashboard", (req, res) => {
   const data = req.body;
@@ -35,9 +36,24 @@ app.post("/save-dashboard", (req, res) => {
   });
 });
 
+app.get("/load-dashboard", (req, res) => {
+  // Check if a file name has been set
+  if (!json) {
+    console.error("No dashboard JSON set");
+    res.sendStatus(500);
+    return;
+  }
+
+  res.send(json);
+});
+
 // Expose a method to set the current file name
 export function setCurrentFileName(fileName: string) {
   currentFileName = fileName;
+}
+
+export function setJson(jsonData: string) {
+  json = jsonData;
 }
 
 let server: Server;

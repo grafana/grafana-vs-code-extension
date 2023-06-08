@@ -3,16 +3,12 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 
-import { setCurrentFileName, startServer, stopServer } from "./server";
+import { setCurrentFileName, setJson, startServer, stopServer } from "./server";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(ctx: vscode.ExtensionContext) {
   const openedFiles = new Set();
-
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "gitit" is now active!');
   startServer();
 
   ctx.subscriptions.push(
@@ -21,7 +17,7 @@ export function activate(ctx: vscode.ExtensionContext) {
         "webview",
         "Dashboard Editor",
         vscode.ViewColumn.One,
-        {}
+        { enableScripts: true }
       );
 
       const fileName = uri?.fsPath;
@@ -31,19 +27,32 @@ export function activate(ctx: vscode.ExtensionContext) {
         openedFiles.add(fileName);
         const data = fs.readFileSync(fileName, "utf-8");
 
-        const urlSafeJson = encodeURIComponent(data);
+        setJson(data);
 
-        const webviewContent = fs
+        const urlSafeJson = encodeURIComponent(data);
+        vscode.workspace.openTextDocument(fileName).then((doc) => {
+          vscode.window.showTextDocument(doc);
+          vscode.env.openExternal(
+            vscode.Uri.parse(
+              `http://localhost:3000/d-embed?callbackUrl=http://localhost:3001/save-dashboard`
+            )
+          );
+        });
+
+        panel.webview.html = fs
           .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
           .replace("${json}", urlSafeJson);
-
-        panel.webview.html = webviewContent;
         panel.webview.options = {
           enableScripts: true,
         };
 
         panel.onDidDispose(() => {
           openedFiles.delete(fileName);
+        });
+
+        panel.webview.postMessage({
+          command: "myCommand",
+          data,
         });
       }
     })
