@@ -2,15 +2,15 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import * as fs from "fs";
-import { startProxy } from "./proxy";
 import { setCurrentFileName, setJson, startServer, stopServer } from "./server";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(ctx: vscode.ExtensionContext) {
   const openedFiles = new Set();
+  const settings = vscode.workspace.getConfiguration("gitit");
+  const port = String(settings.get("port"));
   startServer();
-  startProxy();
 
   ctx.subscriptions.push(
     vscode.commands.registerCommand("gitit.openUrl", (uri: vscode.Uri) => {
@@ -27,13 +27,12 @@ export function activate(ctx: vscode.ExtensionContext) {
         setCurrentFileName(fileName);
         openedFiles.add(fileName);
         const data = fs.readFileSync(fileName, "utf-8");
-
         setJson(data);
 
-        const urlSafeJson = encodeURIComponent(data);
         panel.webview.html = fs
           .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
-          .replace("${json}", urlSafeJson);
+          .replaceAll("${port}", port);
+
         panel.webview.options = {
           enableScripts: true,
         };
