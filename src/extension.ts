@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import * as fs from "fs";
-
+import { startProxy } from "./proxy";
 import { setCurrentFileName, setJson, startServer, stopServer } from "./server";
 
 // This method is called when your extension is activated
@@ -10,6 +10,7 @@ import { setCurrentFileName, setJson, startServer, stopServer } from "./server";
 export function activate(ctx: vscode.ExtensionContext) {
   const openedFiles = new Set();
   startServer();
+  startProxy();
 
   ctx.subscriptions.push(
     vscode.commands.registerCommand("gitit.openUrl", (uri: vscode.Uri) => {
@@ -30,15 +31,6 @@ export function activate(ctx: vscode.ExtensionContext) {
         setJson(data);
 
         const urlSafeJson = encodeURIComponent(data);
-        vscode.workspace.openTextDocument(fileName).then((doc) => {
-          vscode.window.showTextDocument(doc);
-          vscode.env.openExternal(
-            vscode.Uri.parse(
-              `http://localhost:3000/d-embed?callbackUrl=http://localhost:3001/save-dashboard`
-            )
-          );
-        });
-
         panel.webview.html = fs
           .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
           .replace("${json}", urlSafeJson);

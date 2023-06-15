@@ -39,12 +39,17 @@
         "gitit.URL": {
           "type": "string",
           "default": "http://localhost:3000",
-          "description": "Gafana instance URL"
+          "description": "Grafana instance URL"
         },
-        "gitit.cookie": {
+        "gitit.token": {
           "type": "string",
           "default": "",
-          "description": "Active grafana_session cookie"
+          "description": "A Service Account token"
+        },
+        "gitit.port": {
+          "type": "string",
+          "default": "3004",
+          "description": "A port for the proxy server"
         },
         "gitit.message": {
           "type": "boolean",
@@ -89,6 +94,7 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "http-proxy": "^1.18.1",
+    "http-proxy-middleware": "^2.0.6",
     "node-fetch": "^3.3.0",
     "open": "^8.4.2",
     "ws": "^8.13.0"
