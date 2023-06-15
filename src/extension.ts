@@ -33,17 +33,8 @@ export function activate(ctx: vscode.ExtensionContext) {
           .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
           .replaceAll("${port}", port);
 
-        panel.webview.options = {
-          enableScripts: true,
-        };
-
         panel.onDidDispose(() => {
           openedFiles.delete(fileName);
-        });
-
-        panel.webview.postMessage({
-          command: "myCommand",
-          data,
         });
       }
     })
