@@ -1,9 +1,11 @@
 {
-  "name": "gitit",
-  "displayName": "gitIt",
-  "description": "Hackaton project",
+  "name": "grafana-vscode",
+  "author": "Grafana Labs",
+  "displayName": "VS Code Extension for Grafana",
+  "description": "A Visual Studio Code extension for Grafana",
   "version": "0.0.2",
-  "license": "AGPL-3.0-only",
+  "license": "Apache-2.0",
+  "repository": "github:grafana/grafana-vs-code-extension",
   "engines": {
     "vscode": "^1.76.0"
   },
@@ -17,42 +19,42 @@
   "contributes": {
     "commands": [
       {
-        "command": "gitit.openUrl",
+        "command": "grafana-vscode.openUrl",
         "title": "Edit in Grafana"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "gitit.openUrl",
+          "command": "grafana-vscode.openUrl",
           "when": "false"
         }
       ],
       "explorer/context": [
         {
-          "command": "gitit.openUrl"
+          "command": "grafana-vscode.openUrl"
         }
       ]
     },
     "configuration": {
-      "title": "GitIt",
+      "title": "Grafana VS Code Extension",
       "properties": {
-        "gitit.URL": {
+        "grafana-vscode.URL": {
           "type": "string",
           "default": "http://localhost:3000",
           "description": "Grafana instance URL"
         },
-        "gitit.token": {
+        "grafana-vscode.token": {
           "type": "string",
           "default": "",
           "description": "A Service Account token"
         },
-        "gitit.port": {
+        "grafana-vscode.port": {
           "type": "string",
           "default": "3004",
           "description": "A port for the proxy server"
         },
-        "gitit.message": {
+        "grafana-vscode.message": {
           "type": "boolean",
           "default": "true",
           "description": "Show popup message when dashboard JSON is detected"

@@ -8,36 +8,39 @@ import { setCurrentFileName, setJson, startServer, stopServer } from "./server";
 // Your extension is activated the very first time the command is executed
 export function activate(ctx: vscode.ExtensionContext) {
   const openedFiles = new Set();
-  const settings = vscode.workspace.getConfiguration("gitit");
+  const settings = vscode.workspace.getConfiguration("grafana-vscode");
   const port = String(settings.get("port"));
   startServer();
 
   ctx.subscriptions.push(
-    vscode.commands.registerCommand("gitit.openUrl", (uri: vscode.Uri) => {
-      const panel = vscode.window.createWebviewPanel(
-        "webview",
-        "Dashboard Editor",
-        vscode.ViewColumn.One,
-        { enableScripts: true }
-      );
+    vscode.commands.registerCommand(
+      "grafana-vscode.openUrl",
+      (uri: vscode.Uri) => {
+        const panel = vscode.window.createWebviewPanel(
+          "webview",
+          "Dashboard Editor",
+          vscode.ViewColumn.One,
+          { enableScripts: true }
+        );
 
-      const fileName = uri?.fsPath;
+        const fileName = uri?.fsPath;
 
-      if (fileName) {
-        setCurrentFileName(fileName);
-        openedFiles.add(fileName);
-        const data = fs.readFileSync(fileName, "utf-8");
-        setJson(data);
+        if (fileName) {
+          setCurrentFileName(fileName);
+          openedFiles.add(fileName);
+          const data = fs.readFileSync(fileName, "utf-8");
+          setJson(data);
 
-        panel.webview.html = fs
-          .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
-          .replaceAll("${port}", port);
+          panel.webview.html = fs
+            .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
+            .replaceAll("${port}", port);
 
-        panel.onDidDispose(() => {
-          openedFiles.delete(fileName);
-        });
+          panel.onDidDispose(() => {
+            openedFiles.delete(fileName);
+          });
+        }
       }
-    })
+    )
   );
 
   ctx.subscriptions.push(
@@ -46,7 +49,7 @@ export function activate(ctx: vscode.ExtensionContext) {
         e &&
         e.document &&
         !openedFiles.has(e.document.uri.fsPath) &&
-        vscode.workspace.getConfiguration("gitit").get("message")
+        vscode.workspace.getConfiguration("grafana-vscode").get("message")
       ) {
         try {
           const json = JSON.parse(e.document.getText());
@@ -89,10 +92,15 @@ export function activate(ctx: vscode.ExtensionContext) {
             { title: "Don't show again" }
           );
           if (response && response.title === "Yes") {
-            vscode.commands.executeCommand("gitit.openUrl", e.document.uri);
+            vscode.commands.executeCommand(
+              "grafana-vscode.openUrl",
+              e.document.uri
+            );
           }
           if (response && response.title === "Don't show again") {
-            vscode.workspace.getConfiguration("gitit").update("message", false);
+            vscode.workspace
+              .getConfiguration("grafana-vscode")
+              .update("message", false);
           }
         } catch {}
       }

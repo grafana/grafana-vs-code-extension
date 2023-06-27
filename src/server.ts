@@ -19,7 +19,7 @@ export function setJson(jsonData: string) {
 let server: Server;
 
 export function startServer() {
-  const settings = vscode.workspace.getConfiguration("gitit");
+  const settings = vscode.workspace.getConfiguration("grafana-vscode");
   const URL = String(settings.get("URL"));
   const port = String(settings.get("port"));
   const token = String(settings.get("token"));
