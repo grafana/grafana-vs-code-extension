@@ -3,7 +3,6 @@ import { Server, createServer } from "http";
 import { createProxyServer } from "http-proxy";
 import * as fs from "fs";
 import * as vscode from "vscode";
-import * as ws from "ws";
 import * as cors from "cors";
 
 let currentFileName: string | null = null;
@@ -27,16 +26,17 @@ export function startServer() {
 
   const app = express();
   server = createServer(app);
-  const wss = new ws.Server({ server });
   const proxy = createProxyServer({
-    changeOrigin: true,
     target: URL,
+    ws: true,
+    headers: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      Authorization: `Bearer ${token}`,
+    },
   });
 
-  wss.on("connection", function (ws) {
-    ws.on("message", function (message) {
-      ws.send(JSON.stringify(message));
-    });
+  server.on("upgrade", function (req, socket, head) {
+    proxy.ws(req, socket, head, {});
   });
 
   app.post("/save-dashboard", express.json(), cors(), (req, res) => {
@@ -71,21 +71,11 @@ export function startServer() {
   });
 
   app.get("/*", function (req, res) {
-    proxy.web(req, res, {
-      headers: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    proxy.web(req, res, {});
   });
 
   app.post("/*", function (req, res) {
-    proxy.web(req, res, {
-      headers: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    proxy.web(req, res, {});
   });
 
   server.listen(port, () => {
