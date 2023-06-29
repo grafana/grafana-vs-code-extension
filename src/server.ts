@@ -24,6 +24,11 @@ export function startServer() {
   const port = String(settings.get("port"));
   const token = String(settings.get("token"));
 
+  const corsOptions = {
+    origin: `http:localhost:${port}`,
+    optionsSuccessStatus: 200,
+  };
+
   const app = express();
   server = createServer(app);
   const proxy = createProxyServer({
@@ -39,7 +44,7 @@ export function startServer() {
     proxy.ws(req, socket, head, {});
   });
 
-  app.post("/save-dashboard", express.json(), cors(), (req, res) => {
+  app.post("/save-dashboard", express.json(), cors(corsOptions), (req, res) => {
     const data = req.body;
 
     if (!currentFileName) {
@@ -60,7 +65,7 @@ export function startServer() {
     });
   });
 
-  app.get("/load-dashboard", express.json(), cors(), (req, res) => {
+  app.get("/load-dashboard", express.json(), cors(corsOptions), (req, res) => {
     if (!json) {
       console.error("No dashboard JSON set");
       res.sendStatus(500);
