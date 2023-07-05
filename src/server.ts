@@ -7,6 +7,7 @@ import * as cors from "cors";
 
 let currentFileName: string | null = null;
 let json: string | null = null;
+export let port = 3004;
 
 export function setCurrentFileName(fileName: string) {
   currentFileName = fileName;
@@ -21,7 +22,6 @@ let server: Server;
 export function startServer() {
   const settings = vscode.workspace.getConfiguration("grafana-vscode");
   const URL = String(settings.get("URL"));
-  const port = String(settings.get("port"));
   const token = String(settings.get("token"));
 
   const corsOptions = {
@@ -83,8 +83,10 @@ export function startServer() {
     proxy.web(req, res, {});
   });
 
-  server.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+  server.listen(0, () => {
+    //@ts-expect-error
+    port = server?.address()?.port;
+    console.log("Server started");
   });
 }
 

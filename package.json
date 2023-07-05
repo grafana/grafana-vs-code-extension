@@ -49,11 +49,6 @@
           "default": "",
           "description": "A Service Account token"
         },
-        "grafana-vscode.port": {
-          "type": "string",
-          "default": "3004",
-          "description": "A port for the proxy server"
-        },
         "grafana-vscode.message": {
           "type": "boolean",
           "default": "true",
