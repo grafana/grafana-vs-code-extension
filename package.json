@@ -1,8 +1,11 @@
 {
-  "name": "gitit",
-  "displayName": "gitIt",
-  "description": "Hackaton project",
-  "version": "0.0.1",
+  "name": "grafana-vscode",
+  "author": "Grafana Labs",
+  "displayName": "VS Code Extension for Grafana",
+  "description": "A Visual Studio Code extension for Grafana",
+  "version": "0.0.2",
+  "license": "Apache-2.0",
+  "repository": "github:grafana/grafana-vs-code-extension",
   "engines": {
     "vscode": "^1.76.0"
   },
@@ -16,37 +19,37 @@
   "contributes": {
     "commands": [
       {
-        "command": "gitit.openUrl",
+        "command": "grafana-vscode.openUrl",
         "title": "Edit in Grafana"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "gitit.openUrl",
+          "command": "grafana-vscode.openUrl",
           "when": "false"
         }
       ],
       "explorer/context": [
         {
-          "command": "gitit.openUrl"
+          "command": "grafana-vscode.openUrl"
         }
       ]
     },
     "configuration": {
-      "title": "GitIt",
+      "title": "Grafana VS Code Extension",
       "properties": {
-        "gitit.URL": {
+        "grafana-vscode.URL": {
           "type": "string",
           "default": "http://localhost:3000",
-          "description": "Gafana instance URL"
+          "description": "Grafana instance URL"
         },
-        "gitit.cookie": {
+        "grafana-vscode.token": {
           "type": "string",
           "default": "",
-          "description": "Active grafana_session cookie"
+          "description": "A Service Account token"
         },
-        "gitit.message": {
+        "grafana-vscode.message": {
           "type": "boolean",
           "default": "true",
           "description": "Show popup message when dashboard JSON is detected"
@@ -66,13 +69,13 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/glob": "^8.1.0",
     "@types/http-proxy": "^1.17.10",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
     "@types/vscode": "^1.76.0",
-    "@types/ws": "^8.5.4",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
     "@vscode/test-electron": "^2.2.3",
@@ -85,10 +88,10 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "http-proxy": "^1.18.1",
-    "node-fetch": "^3.3.0",
-    "open": "^8.4.2",
-    "ws": "^8.13.0"
+    "http-proxy-middleware": "^2.0.6",
+    "open": "^8.4.2"
   }
 }

@@ -2,54 +2,49 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import * as fs from "fs";
-import * as path from "path";
-import * as proxy from "./proxy";
+import {
+  setCurrentFileName,
+  setJson,
+  startServer,
+  stopServer,
+  port,
+} from "./server";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(ctx: vscode.ExtensionContext) {
   const openedFiles = new Set();
-
-  // try to setup proxy
-  proxy.setup(ctx, 3001, () => console.log("proxy is ready"));
-
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "gitit" is now active!');
+  startServer();
 
   ctx.subscriptions.push(
-    vscode.commands.registerCommand("gitit.openUrl", (uri: vscode.Uri) => {
-      const panel = vscode.window.createWebviewPanel(
-        "webview",
-        "Dashboard Editor",
-        vscode.ViewColumn.One,
-        {}
-      );
+    vscode.commands.registerCommand(
+      "grafana-vscode.openUrl",
+      (uri: vscode.Uri) => {
+        const panel = vscode.window.createWebviewPanel(
+          "webview",
+          "Dashboard Editor",
+          vscode.ViewColumn.One,
+          { enableScripts: true }
+        );
 
-      const fileName = uri?.fsPath;
+        const fileName = uri?.fsPath;
 
-      if (fileName) {
-        openedFiles.add(fileName);
-        const webviewContent = fs
-          .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
-          .replace("${fileName}", path.basename(fileName));
+        if (fileName) {
+          setCurrentFileName(fileName);
+          openedFiles.add(fileName);
+          const data = fs.readFileSync(fileName, "utf-8");
+          setJson(data);
 
-        panel.webview.html = webviewContent;
-        panel.webview.options = {
-          enableScripts: true,
-        };
+          panel.webview.html = fs
+            .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
+            .replaceAll("${port}", port.toString());
 
-        panel.onDidDispose(() => {
-          openedFiles.delete(fileName);
-        });
-
-        //   TODO remove if dashboard is shown in the extension window
-        // vscode.workspace.openTextDocument(fileName).then((doc) => {
-        //   vscode.window.showTextDocument(doc);
-        //   vscode.env.openExternal(vscode.Uri.parse(`http://localhost:3001/d/${path.basename(fileName)}`));
-        // });
+          panel.onDidDispose(() => {
+            openedFiles.delete(fileName);
+          });
+        }
       }
-    })
+    )
   );
 
   ctx.subscriptions.push(
@@ -58,7 +53,7 @@ export function activate(ctx: vscode.ExtensionContext) {
         e &&
         e.document &&
         !openedFiles.has(e.document.uri.fsPath) &&
-        vscode.workspace.getConfiguration("gitit").get("message")
+        vscode.workspace.getConfiguration("grafana-vscode").get("message")
       ) {
         try {
           const json = JSON.parse(e.document.getText());
@@ -101,10 +96,15 @@ export function activate(ctx: vscode.ExtensionContext) {
             { title: "Don't show again" }
           );
           if (response && response.title === "Yes") {
-            vscode.commands.executeCommand("gitit.openUrl", e.document.uri);
+            vscode.commands.executeCommand(
+              "grafana-vscode.openUrl",
+              e.document.uri
+            );
           }
           if (response && response.title === "Don't show again") {
-            vscode.workspace.getConfiguration("gitit").update("message", false);
+            vscode.workspace
+              .getConfiguration("grafana-vscode")
+              .update("message", false);
           }
         } catch {}
       }
@@ -113,4 +113,6 @@ export function activate(ctx: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  stopServer();
+}
