@@ -58,3 +58,20 @@ cookie_secure = true
 cookie_samesite = none
 allow_embedding = true
 ```
+
+## Plugin communication with Grafana
+
+```mermaid
+sequenceDiagram
+    participant Webview as Webview <br> (inside the VS Code Extension)
+    participant Iframe as Iframe (Grafana) <br> (rendered inside the extension's webview)
+    participant ProxyServer as Proxy server <br> (running inside the extension)
+    participant FileSystem as File system
+
+    Note over ProxyServer: Starts on port 3004 (configurable via the extension's settings)
+    Iframe->>ProxyServer: Request to retrieve the JSON for opened dashboard
+    Webview->>Iframe: Render an iframe for Grafana. Callback URL to the proxy is an iframe src URL param 
+    ProxyServer-->>Iframe: JSON for opened dashboard
+    Iframe->>ProxyServer: Edited dashboard JSON on save
+    ProxyServer->>FileSystem: Edited dashboard JSON
+```
