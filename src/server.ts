@@ -75,12 +75,32 @@ export function startServer() {
     res.send(json);
   });
 
-  app.get("/*", function (req, res) {
+  app.get("/d-embed", function (req, res) {
     proxy.web(req, res, {});
   });
 
-  app.post("/*", function (req, res) {
+  app.get("/public/*", function (req, res) {
     proxy.web(req, res, {});
+  });
+
+  app.get("/api/datasources/proxy/*", function (req, res) {
+    proxy.web(req, res, {});
+  });
+
+  app.post("/api/ds/query", function (req, res) {
+    proxy.web(req, res, {});
+  });
+
+  app.post("/api/frontend-metrics", function (req, res) {
+    res.send([]);
+  });
+
+  app.post("/api/ma/events", function (req, res) {
+    res.send([]);
+  });
+
+  app.post("/api/live/publish", function (req, res) {
+    res.send([]);
   });
 
   server.listen(0, () => {
