@@ -4,6 +4,7 @@ import { createProxyServer } from "http-proxy";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import * as cors from "cors";
+import { detectRequestSource } from "./middleware";
 
 let currentFileName: string | null = null;
 let json: string | null = null;
@@ -30,6 +31,7 @@ export function startServer() {
   };
 
   const app = express();
+  app.use(detectRequestSource);
   server = createServer(app);
 
   const proxy = createProxyServer({
