@@ -25,14 +25,16 @@ export function startServer() {
   const token = String(settings.get("token"));
 
   const corsOptions = {
-    origin: `http:localhost:${port}`,
+    origin: `http://localhost:${port}`,
     optionsSuccessStatus: 200,
   };
 
   const app = express();
   server = createServer(app);
+
   const proxy = createProxyServer({
     target: URL,
+    changeOrigin: !URL.includes("localhost"),
     ws: true,
     headers: {
       // eslint-disable-next-line @typescript-eslint/naming-convention
