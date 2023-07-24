@@ -28,7 +28,7 @@ This extension gives you support for Git (and any other version control system f
 
 1. Add `dashboardEmbed` feature toggle to Grafana config.
 2. Create a [Service account in Grafana](https://grafana.com/docs/grafana/latest/administration/service-accounts/#create-a-service-account-in-grafana) and add a token to it. Save the token for later use.
-3. Open the Settings tab inside the extension (use `cmd` + `,` on Mac) and find the Grafana VS Code Extension.
+3. Open the Settings tab inside the extension (use `cmd` + `,` on Mac) and find the extension named `Grafana VS Code Extension`.
 4. If using a hosted Grafana instance, paste that instance's URL in the `URL` field. If using a local Grafana instance, leave the default value.
 5. Paste the previously created Service Account token into the `Token` field. Restart the extension.
 6. If using a local Grafana instance, start Grafana locally.
