@@ -107,6 +107,10 @@ export function startServer() {
     res.send([]);
   });
 
+  app.get("/api/live/list", function (req, res) {
+    res.send([]);
+  });
+
   server.listen(0, () => {
     //@ts-expect-error
     port = server?.address()?.port;
