@@ -48,6 +48,18 @@ export function activate(ctx: vscode.ExtensionContext) {
   );
 
   ctx.subscriptions.push(
+    vscode.commands.registerTextEditorCommand(
+      "grafana-vscode.openInGrafanaExplore",
+      (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
+        const selectedText = editor.document.getText(editor.selection);
+        console.log("selected text was: ", selectedText);
+
+        vscode.env.openExternal(vscode.Uri.parse('https://ops.grafana-ops.net/'.concat(editor.document.getText(editor.selection))));
+      }
+    )
+  );
+
+  ctx.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (e) => {
       if (
         e &&

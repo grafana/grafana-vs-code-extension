@@ -21,6 +21,10 @@
       {
         "command": "grafana-vscode.openUrl",
         "title": "Edit in Grafana"
+      },
+      {
+        "command": "grafana-vscode.openInGrafanaExplore",
+        "title": "Open in Grafana Explore"
       }
     ],
     "menus": {
@@ -30,9 +34,9 @@
           "when": "false"
         }
       ],
-      "explorer/context": [
+      "editor/context": [
         {
-          "command": "grafana-vscode.openUrl"
+          "command": "grafana-vscode.openInGrafanaExplore"
         }
       ]
     },
