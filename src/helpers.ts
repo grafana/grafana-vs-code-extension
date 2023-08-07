@@ -1,4 +1,5 @@
 import * as http from "http";
+import * as vscode from "vscode";
 
 export function interceptResponse(
   proxyRes: http.IncomingMessage,
@@ -58,4 +59,50 @@ export function overrideCookies(
     }
   }
   return unparseCookies(cookieObj);
+}
+
+export function constructPrometheusQuery(metric: string, type: string) {
+  const promDatasourceID = String(vscode.workspace.getConfiguration("grafana-vscode").get("prometheus-datasource-ID"));
+  const grafanaURL = String(vscode.workspace.getConfiguration("grafana-vscode").get("URL"));
+  const queryLabels = String(vscode.workspace.getConfiguration("grafana-vscode").get("query-labels"));
+
+  const metricNamespace = "tempo";
+  var metricWithLabels = metricNamespace.concat("_",
+    metric,
+    "{",
+    queryLabels,
+    "}"
+  );
+  var promqlQuery = "";
+
+  switch (type) {
+    case "counter":
+      promqlQuery = "sum(rate(".concat(
+        metricWithLabels,
+        "[1m]))"
+      );
+      break;
+
+    case "histogram":
+      promqlQuery = "histogram_quantile(0.95, sum(rate(".concat(
+        metricWithLabels,
+        "[5m])) by (le))"
+      );
+    break;
+
+    default:
+      break;
+  }
+
+  const finalGrafanaURL = grafanaURL.concat("/explore?panes=%7B%22EWU%22:%7B%22datasource%22:%22",
+    promDatasourceID,
+    "%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22",
+    promqlQuery,
+    "%22,",
+    "%22range%22:true,%22instant%22:true%7D%5D,%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D%7D&schemaVersion=1&orgId=1"
+    );
+
+  console.log("constructed promql query: ", finalGrafanaURL);
+
+  return finalGrafanaURL;
 }

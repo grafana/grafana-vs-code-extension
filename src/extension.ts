@@ -9,6 +9,7 @@ import {
   stopServer,
   port,
 } from "./server";
+import { constructPrometheusQuery } from "./helpers";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -52,9 +53,8 @@ export function activate(ctx: vscode.ExtensionContext) {
       "grafana-vscode.openInGrafanaExplore",
       (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
         const selectedText = editor.document.getText(editor.selection);
-        console.log("selected text was: ", selectedText);
-
-        vscode.env.openExternal(vscode.Uri.parse('https://ops.grafana-ops.net/'.concat(editor.document.getText(editor.selection))));
+        var grafanaURL = constructPrometheusQuery(selectedText, "counter");
+        vscode.env.openExternal(vscode.Uri.parse(grafanaURL));
       }
     )
   );

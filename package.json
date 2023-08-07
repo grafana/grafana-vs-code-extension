@@ -34,6 +34,11 @@
           "when": "false"
         }
       ],
+      "explorer/context": [
+        {
+          "command": "grafana-vscode.openUrl"
+        }
+      ],
       "editor/context": [
         {
           "command": "grafana-vscode.openInGrafanaExplore"
@@ -57,6 +62,21 @@
           "type": "boolean",
           "default": "true",
           "description": "Show popup message when dashboard JSON is detected"
+        },
+        "grafana-vscode.prometheus-datasource-ID": {
+          "type": "string",
+          "default": "000000134",
+          "description": "Labels to use in Grafana Explore queries"
+        },
+        "grafana-vscode.query-labels": {
+          "type": "string",
+          "default": "cluster='prod-us-central-0', namespace='tempo-prod'",
+          "description": "Labels to use in Grafana Explore queries"
+        },
+        "grafana-vscode.metric-namespace": {
+          "type": "string",
+          "default": "tempo",
+          "description": "Prometheus metric namespace for this project"
         }
       }
     }
