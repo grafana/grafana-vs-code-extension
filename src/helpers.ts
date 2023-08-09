@@ -106,3 +106,22 @@ export function constructPrometheusQuery(metric: string, type: string) {
 
   return finalGrafanaURL;
 }
+
+export function constructTempoQuery(selectedText: string) {
+  const tempoDatasourceID = String(vscode.workspace.getConfiguration("grafana-vscode").get("tempo-datasource-ID"));
+  const grafanaURL = String(vscode.workspace.getConfiguration("grafana-vscode").get("URL"));
+  const query = encodeURIComponent(`queryType":"traceql","limit":20,"query":"{name=\\"${selectedText}\\"}"}]`);
+
+  const finalGrafanaURL = grafanaURL.concat("/explore?panes=%7B%22EWU%22:%7B%22datasource%22:%22",
+    tempoDatasourceID,
+    "%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22datasource%22:",
+    `%7B%22type%22%3A%22tempo%22%2C%22uid%22%3A%22${tempoDatasourceID}%22%7D%2C%22`,
+    query,
+    ',',
+    "%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D%7D&schemaVersion=1&orgId=1"
+  );
+
+  console.log("constructed Tempo query: ", finalGrafanaURL);
+
+  return finalGrafanaURL;
+}

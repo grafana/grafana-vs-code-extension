@@ -25,6 +25,10 @@
       {
         "command": "grafana-vscode.openInGrafanaExplore",
         "title": "Open in Grafana Explore"
+      },
+      {
+        "command": "grafana-vscode.openInTempoExplore",
+        "title": "Open in Tempo Explore"
       }
     ],
     "menus": {
@@ -42,6 +46,9 @@
       "editor/context": [
         {
           "command": "grafana-vscode.openInGrafanaExplore"
+        },
+        {
+          "command": "grafana-vscode.openInTempoExplore"
         }
       ]
     },
@@ -77,6 +84,11 @@
           "type": "string",
           "default": "tempo",
           "description": "Prometheus metric namespace for this project"
+        },
+        "grafana-vscode.tempo-datasource-ID": {
+          "type": "string",
+          "default": "uid",
+          "description": "ID of your Tempo data source"
         }
       }
     }

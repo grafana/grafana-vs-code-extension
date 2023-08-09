@@ -9,7 +9,7 @@ import {
   stopServer,
   port,
 } from "./server";
-import { constructPrometheusQuery } from "./helpers";
+import { constructPrometheusQuery, constructTempoQuery } from "./helpers";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -54,6 +54,17 @@ export function activate(ctx: vscode.ExtensionContext) {
       (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
         const selectedText = editor.document.getText(editor.selection);
         var grafanaURL = constructPrometheusQuery(selectedText, "counter");
+        vscode.env.openExternal(vscode.Uri.parse(grafanaURL));
+      }
+    )
+  );
+
+  ctx.subscriptions.push(
+    vscode.commands.registerTextEditorCommand(
+      "grafana-vscode.openInTempoExplore",
+      (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
+        const selectedText = editor.document.getText(editor.selection);
+        var grafanaURL = constructTempoQuery(selectedText);
         vscode.env.openExternal(vscode.Uri.parse(grafanaURL));
       }
     )
