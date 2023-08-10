@@ -9,7 +9,7 @@ import {
   stopServer,
   port,
 } from "./server";
-import { constructPrometheusQuery, constructTempoQuery } from "./helpers";
+import { constructPrometheusQuery, constructPyroscopeQuery, constructTempoDashboardQuery, constructTempoQuery } from "./helpers";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -87,6 +87,17 @@ export function activate(ctx: vscode.ExtensionContext) {
       (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
         const selectedText = editor.document.getText(editor.selection);
         var grafanaURL = constructTempoQuery(selectedText, 'errors');
+        vscode.env.openExternal(vscode.Uri.parse(grafanaURL));
+      }
+    )
+  );
+
+  ctx.subscriptions.push(
+    vscode.commands.registerTextEditorCommand(
+      "grafana-vscode.openInPyroscopeExplore",
+      (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
+        const selectedText = editor.document.getText(editor.selection);
+        var grafanaURL = constructPyroscopeQuery(selectedText);
         vscode.env.openExternal(vscode.Uri.parse(grafanaURL));
       }
     )

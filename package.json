@@ -37,6 +37,10 @@
       {
         "command": "grafana-vscode.openInTempoExploreErrors",
         "title": "Open in Tempo Explore (find errors)"
+      },
+      {
+        "command": "grafana-vscode.openInPyroscopeExplore",
+        "title": "Open in Pyroscope Explore"
       }
     ],
     "menus": {
@@ -63,6 +67,9 @@
         },
         {
           "command": "grafana-vscode.openInTempoExploreErrors"
+        },
+        {
+          "command": "grafana-vscode.openInPyroscopeExplore"
         }
       ]
     },

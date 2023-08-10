@@ -150,3 +150,22 @@ export function constructTempoDashboardQuery(selectedText: string) {
 
   return finalGrafanaURL;
 }
+
+export function constructPyroscopeQuery(selectedText: string) {
+  const pyroscopeDatasourceID = 'Jm9HMrH4k';//String(vscode.workspace.getConfiguration("grafana-vscode").get("tempo-datasource-ID"));
+  const pyroscopeDatasourceName = 'grafana-pyroscope-datasource';
+  const grafanaURL = String(vscode.workspace.getConfiguration("grafana-vscode").get("URL"));
+  
+  let query = encodeURIComponent(`[{"groupBy":[],"labelSelector":"{job=\\"${selectedText}\\"}","queryType":"both","refId":"A","datasource":{"type":"${pyroscopeDatasourceName}","uid":"${pyroscopeDatasourceID}"},"profileTypeId":"process_cpu:cpu:nanoseconds:cpu:nanoseconds"}]`);
+  const finalGrafanaURL = grafanaURL.concat("/explore?panes=%7B%22EWU%22:%7B%22datasource%22:%22",
+    pyroscopeDatasourceID,
+    "%22,%22queries%22:",
+    query,
+    ',',
+    "%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D%7D&schemaVersion=1&orgId=1"
+  );
+
+  console.log("constructed Pyroscope query: ", finalGrafanaURL);
+
+  return finalGrafanaURL;
+}
