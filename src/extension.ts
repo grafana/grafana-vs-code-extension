@@ -71,6 +71,17 @@ export function activate(ctx: vscode.ExtensionContext) {
   );
 
   ctx.subscriptions.push(
+    vscode.commands.registerTextEditorCommand(
+      "grafana-vscode.openInTempoExploreErrors",
+      (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
+        const selectedText = editor.document.getText(editor.selection);
+        var grafanaURL = constructTempoQuery(selectedText, 'errors');
+        vscode.env.openExternal(vscode.Uri.parse(grafanaURL));
+      }
+    )
+  );
+
+  ctx.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (e) => {
       if (
         e &&

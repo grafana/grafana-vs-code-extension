@@ -29,6 +29,10 @@
       {
         "command": "grafana-vscode.openInTempoExplore",
         "title": "Open in Tempo Explore"
+      },
+      {
+        "command": "grafana-vscode.openInTempoExploreErrors",
+        "title": "Open in Tempo Explore (find errors)"
       }
     ],
     "menus": {
@@ -49,6 +53,9 @@
         },
         {
           "command": "grafana-vscode.openInTempoExplore"
+        },
+        {
+          "command": "grafana-vscode.openInTempoExploreErrors"
         }
       ]
     },
