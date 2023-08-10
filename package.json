@@ -27,6 +27,10 @@
         "title": "Open in Grafana Explore"
       },
       {
+        "command": "grafana-vscode.openInTempoDashboard",
+        "title": "Open in Tempo Dashboard"
+      },
+      {
         "command": "grafana-vscode.openInTempoExplore",
         "title": "Open in Tempo Explore"
       },
@@ -50,6 +54,9 @@
       "editor/context": [
         {
           "command": "grafana-vscode.openInGrafanaExplore"
+        },
+        {
+          "command": "grafana-vscode.openInTempoDashboard"
         },
         {
           "command": "grafana-vscode.openInTempoExplore"

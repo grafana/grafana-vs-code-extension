@@ -115,7 +115,7 @@ export function constructTempoQuery(selectedText: string, type?: string) {
   switch (type) {
     case "errors":
       query = encodeURIComponent(`queryType":"traceqlSearch","limit":20,"filters":[{"id":"9f4e9d63","operator":"=","scope":"span","tag":"status","value":["error"],"valueType":"keyword"},{"id":"a30b8233","operator":"=","scope":"span","tag":"name","value":["${selectedText}"],"valueType":"string"}]}]`);
-    break;
+      break;
 
     default:
       query = encodeURIComponent(`queryType":"traceql","limit":20,"query":"{name=\\"${selectedText}\\"}"}]`);
@@ -131,6 +131,22 @@ export function constructTempoQuery(selectedText: string, type?: string) {
   );
 
   console.log("constructed Tempo query: ", finalGrafanaURL);
+
+  return finalGrafanaURL;
+}
+
+export function constructTempoDashboardQuery(selectedText: string) {
+  const tempoDatasourceID = 'tTl06cUnk';//String(vscode.workspace.getConfiguration("grafana-vscode").get("tempo-datasource-ID"));
+  const grafanaURL = String(vscode.workspace.getConfiguration("grafana-vscode").get("URL"));
+  let query = encodeURIComponent(`&var-span=${selectedText}`);
+
+  const finalGrafanaURL = grafanaURL.concat("/d/",
+    tempoDatasourceID,
+    "/tempo?orgId=1",
+    query
+  );
+
+  console.log("constructed Tempo dashboard query: ", finalGrafanaURL);
 
   return finalGrafanaURL;
 }
