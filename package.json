@@ -86,6 +86,11 @@
           "default": "",
           "description": "A Service Account token"
         },
+        "grafana-vscode.openai-api-key": {
+          "type": "string",
+          "default": "",
+          "description": "OpenAI API Key"
+        },
         "grafana-vscode.message": {
           "type": "boolean",
           "default": "true",
@@ -149,6 +154,7 @@
     "express": "^4.18.2",
     "http-proxy": "^1.18.1",
     "http-proxy-middleware": "^2.0.6",
-    "open": "^8.4.2"
+    "open": "^8.4.2",
+    "openai": "^3.3.0"
   }
 }

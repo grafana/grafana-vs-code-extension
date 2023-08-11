@@ -11,6 +11,27 @@ import {
 } from "./server";
 import { constructPrometheusQuery, constructPyroscopeQuery, constructTempoDashboardQuery, constructTempoQuery } from "./helpers";
 
+//   // dev helper function to dump all the command identifiers to the console
+//   // helps if you cannot find the command id on github.
+//   var findCommand = function(){
+//     vscode.commands.getCommands(true).then(
+//         function(cmds){
+//             console.log("fulfilled");
+//             console.log(cmds);
+//             var fs = require('fs');
+//             fs.writeFile("/Users/annanay/Desktop/git/go/src/github.com/grafana/grafana-vs-code-extension/test.txt", JSON.stringify(cmds), function(err: Error) {
+//                 if (err) {
+//                     console.log(err);
+//                 }
+//             });
+//                     },
+//         function() {
+//             console.log("failed");
+//             console.log(arguments);
+//         }
+//     );
+// };
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(ctx: vscode.ExtensionContext) {
@@ -51,13 +72,37 @@ export function activate(ctx: vscode.ExtensionContext) {
   ctx.subscriptions.push(
     vscode.commands.registerTextEditorCommand(
       "grafana-vscode.openInGrafanaExplore",
-      (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
+      async (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
         const selectedText = editor.document.getText(editor.selection);
-        var grafanaURL = constructPrometheusQuery(selectedText, "counter");
-        vscode.env.openExternal(vscode.Uri.parse(grafanaURL));
+        var grafanaURL = await constructPrometheusQuery(selectedText, "counter");
+        // vscode.env.openExternal(vscode.Uri.parse(grafanaURL));
       }
     )
   );
+
+  // // debug logging all extensions
+  // // console.log(vscode.extensions.all.map(x => x.id));
+
+  // var vscodeGoExtension =  vscode.extensions.getExtension('vscode.go');
+
+  // // is the ext loaded and ready?
+  // if( vscodeGoExtension !== undefined && vscodeGoExtension.isActive === false ){
+  //   vscodeGoExtension.activate().then(
+  //         function(){
+  //             console.log( "Extension activated");
+  //             const editor = vscode.window.activeTextEditor;
+  //             var res = vscode.commands.executeCommand("<insert action name>");
+  //             console.log("command execution response", res);
+  //           },
+  //         function(){
+  //             console.log( "Extension activation failed");
+  //         }
+  //     );
+  // } else {
+  //   console.log( "Extension was already active");
+  //   var res = vscode.commands.executeCommand("<insert action name>");
+  //   console.log("command execution response", res);
+  // }
 
   ctx.subscriptions.push(
     vscode.commands.registerTextEditorCommand(
