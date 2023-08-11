@@ -1,6 +1,7 @@
 import * as http from "http";
 import { Configuration, OpenAIApi} from "openai";
 import * as vscode from "vscode";
+import { Query } from "./extension";
 
 export function interceptResponse(
   proxyRes: http.IncomingMessage,
@@ -172,7 +173,7 @@ export function constructPyroscopeQuery(selectedText: string) {
 }
 
 // Identifies PromQL queries in a text document using chat-gpt-3.5
-export async function identifyPromQLQueries(text: string) {
+export async function identifyPromQLQueries(text: string): Promise<Query[]> {
   // Set up the OpenAI API client
   const config = new Configuration({
     apiKey: String(vscode.workspace.getConfiguration("grafana-vscode").get("openai-api-key")),
@@ -189,13 +190,13 @@ export async function identifyPromQLQueries(text: string) {
         You are an expert at the Go programming language.
         You are tasked by your colleague to identify the exact lines in the following file that represent a prometheus metric definition.
         A prometheus metric definition is typically identified by noticing the use of the promauto library together with the metric namespace
-        and name. If you are able to identify the metric, respond in the following JSON format:
-        {"metric_name", "metric_namespace", "position"}
+        and name. If you are able to identify the metric, respond with a JSON array where each item has the following JSON format:
+        {"metric_name", "metric_namespace"}
         There could be multiple metrics in the file, or none.
         There should be one JSON entry per prometheus metric. Be precise and concise with your response. File contents follow`.concat(text),
       }
     ],
   });
   console.log(chatCompletion.data.choices[0].message);
-  return chatCompletion.data.choices[0].message
+  return JSON.parse(chatCompletion.data.choices[0].message?.content ?? "[]") as unknown as Query[]
 }

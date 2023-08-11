@@ -32,7 +32,7 @@ import { constructPrometheusQuery, constructPyroscopeQuery, constructTempoDashbo
 //     );
 // };
 
-interface Query {
+export interface Query {
   metric_name: string
   metric_namespace: string
 }
@@ -59,11 +59,9 @@ export function activate(ctx: vscode.ExtensionContext) {
     }
     
     // Parse the file and identify queries if not already done
-    // const documentContent = document.getText();
-    // const res = await identifyPromQLQueries(documentContent)
-    // identifiedQueries.set(document.fileName, res);
-
-    identifiedQueries.set(document.fileName, [{ metric_name: "node_memory_usage_bytes", metric_namespace: "otlp" }])
+    const documentContent = document.getText();
+    const res = await identifyPromQLQueries(documentContent)
+    identifiedQueries.set(document.fileName, res);
   });
 
   // Register a hover provider for identified queries
@@ -79,7 +77,6 @@ export function activate(ctx: vscode.ExtensionContext) {
         // See if any of the identified queries overlap the active position
         const wordRange = document.getWordRangeAtPosition(position);
         const rangeText = document.getText(wordRange);
-        // TODO: Match up stored query with wordRange based on position (if prompt is reliable), else search within page document text
         const query = queries.find((query: Query) => query.metric_name.includes(rangeText)) ?? queries[0];
         if (!query) {
           return
@@ -89,7 +86,7 @@ export function activate(ctx: vscode.ExtensionContext) {
         // TODO: Identify if counter or histogram
         const exploreURL = constructPrometheusQuery(query.metric_name, "counter")
         const content = new vscode.MarkdownString()
-        content.appendMarkdown(`<p><a href="${exploreURL}">Open in Explore</a></p>`)
+        content.appendMarkdown(`<p>${query.metric_name}: <a href="${exploreURL}">Open in Explore</a></p>`)
         content.supportHtml = true
         return { 
           contents: [content]
