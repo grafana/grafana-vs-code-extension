@@ -68,17 +68,25 @@ export function constructPrometheusQuery(metric: string, type: string) {
   const grafanaURL = String(vscode.workspace.getConfiguration("grafana-vscode").get("URL"));
   const queryLabels = String(vscode.workspace.getConfiguration("grafana-vscode").get("query-labels"));
 
-  const metricNamespace = "tempo";
-  var metricWithLabels = metricNamespace.concat("_",
-    metric,
-    "{",
-    queryLabels,
-    "}"
-  );
+  var metricNamespace = "";
+  if (metric.startsWith("tempo_")) {
+  } else {
+    metricNamespace = String(vscode.workspace.getConfiguration("grafana-vscode").get("metric-namespace")).concat("_");
+  }
   var promqlQuery = "";
 
+  if (metric.endsWith("_total") || metric.endsWith("_count")) {
+    type = "counter";
+  } else {
+    type = "histogram";
+  }
   switch (type) {
     case "counter":
+      var metricWithLabels = metricNamespace.concat(metric,
+        "{",
+        queryLabels,
+        "}"
+      );
       promqlQuery = "sum(rate(".concat(
         metricWithLabels,
         "[1m]))"
@@ -86,6 +94,12 @@ export function constructPrometheusQuery(metric: string, type: string) {
       break;
 
     case "histogram":
+      var metricWithLabels = metricNamespace.concat(metric,
+        "_bucket",
+        "{",
+        queryLabels,
+        "}"
+      );
       promqlQuery = "histogram_quantile(0.95, sum(rate(".concat(
         metricWithLabels,
         "[5m])) by (le))"
@@ -138,7 +152,7 @@ export function constructTempoQuery(selectedText: string, type?: string) {
 }
 
 export function constructTempoDashboardQuery(selectedText: string) {
-  const tempoDatasourceID = 'tTl06cUnk';//String(vscode.workspace.getConfiguration("grafana-vscode").get("tempo-datasource-ID"));
+  const tempoDatasourceID = String(vscode.workspace.getConfiguration("grafana-vscode").get("tempo-datasource-ID"));
   const grafanaURL = String(vscode.workspace.getConfiguration("grafana-vscode").get("URL"));
   let query = encodeURIComponent(`&var-span=${selectedText}`);
 
@@ -153,23 +167,44 @@ export function constructTempoDashboardQuery(selectedText: string) {
   return finalGrafanaURL;
 }
 
-export function constructPyroscopeQuery(selectedText: string) {
-  const pyroscopeDatasourceID = 'Jm9HMrH4k';//String(vscode.workspace.getConfiguration("grafana-vscode").get("tempo-datasource-ID"));
-  const pyroscopeDatasourceName = 'grafana-pyroscope-datasource';
-  const grafanaURL = String(vscode.workspace.getConfiguration("grafana-vscode").get("URL"));
-  
-  let query = encodeURIComponent(`[{"groupBy":[],"labelSelector":"{job=\\"${selectedText}\\"}","queryType":"both","refId":"A","datasource":{"type":"${pyroscopeDatasourceName}","uid":"${pyroscopeDatasourceID}"},"profileTypeId":"process_cpu:cpu:nanoseconds:cpu:nanoseconds"}]`);
-  const finalGrafanaURL = grafanaURL.concat("/explore?panes=%7B%22EWU%22:%7B%22datasource%22:%22",
-    pyroscopeDatasourceID,
-    "%22,%22queries%22:",
-    query,
-    ',',
-    "%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D%7D&schemaVersion=1&orgId=1"
-  );
+export function constructLokiQuery(selectedText: string) {
+  // const pyroscopeDatasourceID = String(vscode.workspace.getConfiguration("grafana-vscode").get("pyroscope-datasource-ID"));
+  // const pyroscopeDatasourceName = 'grafana-pyroscope-datasource';
+  // const grafanaURL = String(vscode.workspace.getConfiguration("grafana-vscode").get("URL"));
 
-  console.log("constructed Pyroscope query: ", finalGrafanaURL);
+  // let query = encodeURIComponent(`[{"groupBy":[],"labelSelector":"{job=\\"${selectedText}\\"}","queryType":"both","refId":"A","datasource":{"type":"${pyroscopeDatasourceName}","uid":"${pyroscopeDatasourceID}"},"profileTypeId":"process_cpu:cpu:nanoseconds:cpu:nanoseconds"}]`);
+  // const finalGrafanaURL = grafanaURL.concat("/explore?panes=%7B%22EWU%22:%7B%22datasource%22:%22",
+  //   pyroscopeDatasourceID,
+  //   "%22,%22queries%22:",
+  //   query,
+  //   ',',
+  //   "%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D%7D&schemaVersion=1&orgId=1"
+  // );
+
+  // console.log("constructed Pyroscope query: ", finalGrafanaURL);
+
+  // return finalGrafanaURL;
+
+  const lokiDatasourceID = String(vscode.workspace.getConfiguration("grafana-vscode").get("loki-datasource-ID"));
+  const grafanaURL = String(vscode.workspace.getConfiguration("grafana-vscode").get("URL"));
+  const queryLabels = String(vscode.workspace.getConfiguration("grafana-vscode").get("query-labels"));
+
+  const finalGrafanaURL = grafanaURL.concat("/explore?panes=%7B%22EWU%22:%7B%22datasource%22:%22",
+    lokiDatasourceID,
+    "%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22",
+    "{",
+    queryLabels,
+    "}",
+    " |= '",
+    selectedText,
+    "'%22,",
+    "%22range%22:true,%22instant%22:true%7D%5D,%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D%7D&schemaVersion=1&orgId=1"
+    );
+
+  console.log("constructed loki query: ", finalGrafanaURL);
 
   return finalGrafanaURL;
+
 }
 
 // Identifies PromQL queries in a text document using chat-gpt-3.5

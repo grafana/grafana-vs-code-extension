@@ -9,7 +9,7 @@ import {
   stopServer,
   port,
 } from "./server";
-import { constructPrometheusQuery, constructPyroscopeQuery, constructTempoDashboardQuery, constructTempoQuery, identifyPromQLQueries } from "./helpers";
+import { constructPrometheusQuery, constructLokiQuery, constructTempoDashboardQuery, constructTempoQuery, identifyPromQLQueries } from "./helpers";
 
 //   // dev helper function to dump all the command identifiers to the console
 //   // helps if you cannot find the command id on github.
@@ -50,17 +50,17 @@ export function activate(ctx: vscode.ExtensionContext) {
   vscode.workspace.onDidOpenTextDocument(async (document) => {
     // For now, just check go files
     if (document.languageId !== 'go') {
-      return
+      return;
     }
 
     // Check if the file has already been processed and has results in identifiedQueries
     if (identifiedQueries.has(document.fileName)) {
       return identifiedQueries.get(document.fileName);
     }
-    
+
     // Parse the file and identify queries if not already done
     const documentContent = document.getText();
-    const res = await identifyPromQLQueries(documentContent)
+    const res = await identifyPromQLQueries(documentContent);
     identifiedQueries.set(document.fileName, res);
   });
 
@@ -84,16 +84,16 @@ export function activate(ctx: vscode.ExtensionContext) {
 
         // Build the explore URL and return the hover content
         // TODO: Identify if counter or histogram
-        const exploreURL = constructPrometheusQuery(query.metric_name, "counter")
-        const content = new vscode.MarkdownString()
-        content.appendMarkdown(`<p>${query.metric_name}: <a href="${exploreURL}">Open in Explore</a></p>`)
-        content.supportHtml = true
-        return { 
+        const exploreURL = constructPrometheusQuery(query.metric_name, "counter");
+        const content = new vscode.MarkdownString();
+        content.appendMarkdown(`<p>${query.metric_name}: <a href="${exploreURL}">Open in Explore</a></p>`);
+        content.supportHtml = true;
+        return {
           contents: [content]
-        }
+        };
       }
     })
-  )
+  );
 
   ctx.subscriptions.push(
     vscode.commands.registerCommand(
@@ -132,7 +132,7 @@ export function activate(ctx: vscode.ExtensionContext) {
       async (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
         const selectedText = editor.document.getText(editor.selection);
         var grafanaURL = await constructPrometheusQuery(selectedText, "counter");
-        // vscode.env.openExternal(vscode.Uri.parse(grafanaURL));
+        vscode.env.openExternal(vscode.Uri.parse(grafanaURL));
       }
     )
   );
@@ -196,10 +196,10 @@ export function activate(ctx: vscode.ExtensionContext) {
 
   ctx.subscriptions.push(
     vscode.commands.registerTextEditorCommand(
-      "grafana-vscode.openInPyroscopeExplore",
+      "grafana-vscode.openInLokiExplore",
       (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
         const selectedText = editor.document.getText(editor.selection);
-        var grafanaURL = constructPyroscopeQuery(selectedText);
+        var grafanaURL = constructLokiQuery(selectedText);
         vscode.env.openExternal(vscode.Uri.parse(grafanaURL));
       }
     )

@@ -39,8 +39,8 @@
         "title": "Open in Tempo Explore (find errors)"
       },
       {
-        "command": "grafana-vscode.openInPyroscopeExplore",
-        "title": "Open in Pyroscope Explore"
+        "command": "grafana-vscode.openInLokiExplore",
+        "title": "Open in Loki Explore"
       }
     ],
     "menus": {
@@ -69,7 +69,7 @@
           "command": "grafana-vscode.openInTempoExploreErrors"
         },
         {
-          "command": "grafana-vscode.openInPyroscopeExplore"
+          "command": "grafana-vscode.openInLokiExplore"
         }
       ]
     },
@@ -115,6 +115,11 @@
           "type": "string",
           "default": "uid",
           "description": "ID of your Tempo data source"
+        },
+        "grafana-vscode.loki-datasource-ID": {
+          "type": "string",
+          "default": "uid",
+          "description": "ID of your Loki data source"
         }
       }
     }
