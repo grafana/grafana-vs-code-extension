@@ -9,7 +9,7 @@ import {
   stopServer,
   port,
 } from "./server";
-import { constructPrometheusQuery, constructPyroscopeQuery, constructTempoDashboardQuery, constructTempoQuery } from "./helpers";
+import { constructPrometheusQuery, constructPyroscopeQuery, constructTempoDashboardQuery, constructTempoQuery, identifyPromQLQueries } from "./helpers";
 
 //   // dev helper function to dump all the command identifiers to the console
 //   // helps if you cannot find the command id on github.
@@ -37,6 +37,56 @@ import { constructPrometheusQuery, constructPyroscopeQuery, constructTempoDashbo
 export function activate(ctx: vscode.ExtensionContext) {
   const openedFiles = new Set();
   startServer();
+
+  // Track identified queries per file
+  const identifiedQueries = new Map();
+
+  // Listen to text documents being opened to parse the file and identify any queries
+  vscode.workspace.onDidOpenTextDocument(async (document) => {
+    // For now, just check go files
+    if (document.languageId !== 'go') {
+      return
+    }
+
+    // Check if the file has already been processed and has results in identifiedQueries
+    if (identifiedQueries.has(document.fileName)) {
+      return identifiedQueries.get(document.fileName);
+    }
+    
+    // Parse the file and identify queries if not already done
+    const documentContent = document.getText();
+    const res = await identifyPromQLQueries(documentContent)
+    identifiedQueries.set(document.fileName, res);
+  });
+
+  // Register a hover provider for identified queries
+  ctx.subscriptions.push(
+    vscode.languages.registerHoverProvider('go', {
+      provideHover(document, position, token) {
+        // Check if the file has any identified queries
+        const queries = identifiedQueries.get(document.fileName);
+        if (!queries) {
+          return;
+        }
+
+        // See if any of the identified queries overlap the active position
+        const wordRange = document.getWordRangeAtPosition(position);
+        // TODO: Match up stored query with wordRange based on position (if prompt is reliable), else search within page document text
+        // @ts-ignore
+        const query = queries.find((query) => query.range.contains(wordRange));
+        if (!query) {
+          return
+        }
+
+        // Build the explore URL and return the hover content
+        // TODO: Identify if counter or histogram
+        const exploreURL = constructPrometheusQuery(query, "counter")
+        return { 
+          contents: ['Hover content']
+        }
+      }
+    })
+  )
 
   ctx.subscriptions.push(
     vscode.commands.registerCommand(

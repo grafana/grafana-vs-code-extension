@@ -62,7 +62,7 @@ export function overrideCookies(
   return unparseCookies(cookieObj);
 }
 
-export async function constructPrometheusQuery(metric: string, type: string) {
+export function constructPrometheusQuery(metric: string, type: string) {
   const promDatasourceID = String(vscode.workspace.getConfiguration("grafana-vscode").get("prometheus-datasource-ID"));
   const grafanaURL = String(vscode.workspace.getConfiguration("grafana-vscode").get("URL"));
   const queryLabels = String(vscode.workspace.getConfiguration("grafana-vscode").get("query-labels"));
@@ -104,35 +104,6 @@ export async function constructPrometheusQuery(metric: string, type: string) {
     );
 
   console.log("constructed promql query: ", finalGrafanaURL);
-
-  const config = new Configuration({
-    apiKey: String(vscode.workspace.getConfiguration("grafana-vscode").get("openai-api-key")),
-  });
-  const openai = new OpenAIApi(config);
-  const activeEditor = vscode.window.activeTextEditor;
-
-  var documentContent = "";
-  if (activeEditor !== undefined) {
-    documentContent = activeEditor.document.getText();
-  }
-
-  const chatCompletion = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
-    messages: [
-      {
-        role: "user",
-        content: `
-        You are an expert at the Go programming language.
-        You are tasked by your colleague to identify the exact lines in the following file that represent a prometheus metric definition.
-        A prometheus metric definition is typically identified by noticing the use of the promauto library together with the metric namespace
-        and name. If you are able to identify the metric, respond in the following JSON format:
-        {"metric_name", "metric_namespace"}
-        There could be multiple metrics in the file, or none.
-        There should be one JSON entry per prometheus metric. Be precise and concise with your response. File contents follow`.concat(documentContent),
-      }
-    ],
-  });
-  console.log(chatCompletion.data.choices[0].message);
 
   return finalGrafanaURL;
 }
@@ -198,4 +169,33 @@ export function constructPyroscopeQuery(selectedText: string) {
   console.log("constructed Pyroscope query: ", finalGrafanaURL);
 
   return finalGrafanaURL;
+}
+
+// Identifies PromQL queries in a text document using chat-gpt-3.5
+export async function identifyPromQLQueries(text: string) {
+  // Set up the OpenAI API client
+  const config = new Configuration({
+    apiKey: String(vscode.workspace.getConfiguration("grafana-vscode").get("openai-api-key")),
+  });
+  const openai = new OpenAIApi(config);
+
+  // Prompt to identify promql queries and their position in the document
+  const chatCompletion = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: "user",
+        content: `
+        You are an expert at the Go programming language.
+        You are tasked by your colleague to identify the exact lines in the following file that represent a prometheus metric definition.
+        A prometheus metric definition is typically identified by noticing the use of the promauto library together with the metric namespace
+        and name. If you are able to identify the metric, respond in the following JSON format:
+        {"metric_name", "metric_namespace", "position"}
+        There could be multiple metrics in the file, or none.
+        There should be one JSON entry per prometheus metric. Be precise and concise with your response. File contents follow`.concat(text),
+      }
+    ],
+  });
+  console.log(chatCompletion.data.choices[0].message);
+  return chatCompletion.data.choices[0].message
 }
