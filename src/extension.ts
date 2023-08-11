@@ -32,6 +32,11 @@ import { constructPrometheusQuery, constructPyroscopeQuery, constructTempoDashbo
 //     );
 // };
 
+interface Query {
+  metric_name: string
+  metric_namespace: string
+}
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(ctx: vscode.ExtensionContext) {
@@ -39,7 +44,7 @@ export function activate(ctx: vscode.ExtensionContext) {
   startServer();
 
   // Track identified queries per file
-  const identifiedQueries = new Map();
+  const identifiedQueries = new Map<string, Query[]>();
 
   // Listen to text documents being opened to parse the file and identify any queries
   vscode.workspace.onDidOpenTextDocument(async (document) => {
@@ -54,9 +59,11 @@ export function activate(ctx: vscode.ExtensionContext) {
     }
     
     // Parse the file and identify queries if not already done
-    const documentContent = document.getText();
-    const res = await identifyPromQLQueries(documentContent)
-    identifiedQueries.set(document.fileName, res);
+    // const documentContent = document.getText();
+    // const res = await identifyPromQLQueries(documentContent)
+    // identifiedQueries.set(document.fileName, res);
+
+    identifiedQueries.set(document.fileName, [{ metric_name: "node_memory_usage_bytes", metric_namespace: "otlp" }])
   });
 
   // Register a hover provider for identified queries
@@ -71,18 +78,21 @@ export function activate(ctx: vscode.ExtensionContext) {
 
         // See if any of the identified queries overlap the active position
         const wordRange = document.getWordRangeAtPosition(position);
+        const rangeText = document.getText(wordRange);
         // TODO: Match up stored query with wordRange based on position (if prompt is reliable), else search within page document text
-        // @ts-ignore
-        const query = queries.find((query) => query.range.contains(wordRange));
+        const query = queries.find((query: Query) => query.metric_name.includes(rangeText)) ?? queries[0];
         if (!query) {
           return
         }
 
         // Build the explore URL and return the hover content
         // TODO: Identify if counter or histogram
-        const exploreURL = constructPrometheusQuery(query, "counter")
+        const exploreURL = constructPrometheusQuery(query.metric_name, "counter")
+        const content = new vscode.MarkdownString()
+        content.appendMarkdown(`<p><a href="${exploreURL}">Open in Explore</a></p>`)
+        content.supportHtml = true
         return { 
-          contents: ['Hover content']
+          contents: [content]
         }
       }
     })
