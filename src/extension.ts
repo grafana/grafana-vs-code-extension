@@ -2,13 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import * as fs from "fs";
-import {
-  setCurrentFileName,
-  setJson,
-  startServer,
-  stopServer,
-  port,
-} from "./server";
+import { setCurrentFileName, startServer, stopServer, port } from "./server";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -32,8 +26,6 @@ export function activate(ctx: vscode.ExtensionContext) {
         if (fileName) {
           setCurrentFileName(fileName);
           openedFiles.add(fileName);
-          const data = fs.readFileSync(fileName, "utf-8");
-          setJson(data);
 
           panel.webview.html = fs
             .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")

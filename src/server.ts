@@ -7,15 +7,10 @@ import * as cors from "cors";
 import { detectRequestSource } from "./middleware";
 
 let currentFileName: string | null = null;
-let json: string | null = null;
 export let port = 3004;
 
 export function setCurrentFileName(fileName: string) {
   currentFileName = fileName;
-}
-
-export function setJson(jsonData: string) {
-  json = jsonData;
 }
 
 let server: Server;
@@ -70,13 +65,20 @@ export function startServer() {
   });
 
   app.get("/load-dashboard", express.json(), cors(corsOptions), (req, res) => {
-    if (!json) {
-      console.error("No dashboard JSON set");
+    if (!currentFileName) {
+      console.error("No file name set");
       res.sendStatus(500);
       return;
     }
 
-    res.send(json);
+    fs.readFile(currentFileName, "utf-8", (err, data) => {
+      if (err) {
+        console.error("Error reading file:", err);
+        res.sendStatus(500);
+        return;
+      }
+      res.send(data);
+    });
   });
 
   app.get("/d-embed", function (req, res) {
@@ -123,7 +125,7 @@ export function startServer() {
     res.send([]);
   });
 
-  server.listen(3006, () => {
+  server.listen(0, () => {
     //@ts-expect-error
     port = server?.address()?.port;
     console.log("Server started");
