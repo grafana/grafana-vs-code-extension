@@ -91,6 +91,10 @@ export function startServer() {
     proxy.web(req, res, {});
   });
 
+  app.get("/api/datasources/*", function (req, res) {
+    proxy.web(req, res, {});
+  });
+
   app.post("/api/ds/query", function (req, res) {
     proxy.web(req, res, {});
   });
@@ -111,7 +115,15 @@ export function startServer() {
     res.send([]);
   });
 
-  server.listen(0, () => {
+  app.get("/api/user/orgs", function (req, res) {
+    res.send([]);
+  });
+
+  app.post("/api/search-v2", function (req, res) {
+    res.send([]);
+  });
+
+  server.listen(3006, () => {
     //@ts-expect-error
     port = server?.address()?.port;
     console.log("Server started");
