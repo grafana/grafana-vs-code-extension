@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as vscode from "vscode";
 import * as cors from "cors";
 import { detectRequestSource } from "./middleware";
-import axios, {AxiosResponse} from "axios";
+import axios, {AxiosResponse, AxiosError} from "axios";
 
 let currentFileName: string | null = null;
 export let port = 3004;
@@ -22,12 +22,21 @@ export function verifyConnection(success: any, failure: any) {
   const token = String(settings.get("token"));
 
   axios.get(URL, {
+    maxRedirects:0,
     headers: {
       Authorization: `Bearer ${token}`
     }
   })
-  .then(()=>{success()})
-  .catch((err)=>{failure(err)});
+  .then((res:AxiosResponse)=>{
+    success();
+  })
+  .catch((err:AxiosError)=>{
+    if (err.response?.status == 302) {
+      failure("Authentication error");
+    } else {
+    failure(err);
+    }
+  });
 }
 
 export function startServer() {
