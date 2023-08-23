@@ -39,7 +39,7 @@ export function activate(ctx: vscode.ExtensionContext) {
           function failure(error: any) {
             panel.webview.html = `<h1>A problem occurred connecting to Grafana</h1><p>${error}</p>`;
           }
-          const error = verifyConnection(success, failure);
+          verifyConnection(success, failure);
         }
       }
     )
