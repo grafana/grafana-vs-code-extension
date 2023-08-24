@@ -5,6 +5,7 @@ import * as fs from "fs";
 import * as vscode from "vscode";
 import * as cors from "cors";
 import { detectRequestSource } from "./middleware";
+import axios, { AxiosResponse, AxiosError } from "axios";
 
 let currentFileName: string | null = null;
 export let port = 3004;
@@ -14,6 +15,30 @@ export function setCurrentFileName(fileName: string) {
 }
 
 let server: Server;
+
+export function verifyConnection(success: any, failure: any) {
+  const settings = vscode.workspace.getConfiguration("grafana-vscode");
+  const URL = String(settings.get("URL"));
+  const token = String(settings.get("token"));
+
+  axios
+    .get(URL, {
+      maxRedirects: 0,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((res: AxiosResponse) => {
+      success();
+    })
+    .catch((err: AxiosError) => {
+      if (err.response?.status == 302) {
+        failure("Authentication error");
+      } else {
+        failure(err);
+      }
+    });
+}
 
 export function startServer() {
   const settings = vscode.workspace.getConfiguration("grafana-vscode");

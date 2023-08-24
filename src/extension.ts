@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import * as fs from "fs";
-import { setCurrentFileName, startServer, stopServer, port } from "./server";
+import { setCurrentFileName, verifyConnection, startServer, stopServer, port } from "./server";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -25,15 +25,21 @@ export function activate(ctx: vscode.ExtensionContext) {
 
         if (fileName) {
           setCurrentFileName(fileName);
-          openedFiles.add(fileName);
 
-          panel.webview.html = fs
+          function success() {
+            openedFiles.add(fileName);
+            panel.webview.html = fs
             .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
             .replaceAll("${port}", port.toString());
 
-          panel.onDidDispose(() => {
-            openedFiles.delete(fileName);
-          });
+            panel.onDidDispose(() => {
+              openedFiles.delete(fileName);
+            });
+          };
+          function failure(error: any) {
+            panel.webview.html = `<h1>A problem occurred connecting to Grafana</h1><p>${error}</p>`;
+          }
+          verifyConnection(success, failure);
         }
       }
     )
