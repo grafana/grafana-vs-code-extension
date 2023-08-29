@@ -3,12 +3,15 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import { setCurrentFileName, verifyConnection, startServer, stopServer, port } from "./server";
+import { GrafanaEditorProvider } from './editor';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(ctx: vscode.ExtensionContext) {
   const openedFiles = new Set();
   startServer();
+
+  ctx.subscriptions.push(GrafanaEditorProvider.register(ctx));
 
   ctx.subscriptions.push(
     vscode.commands.registerCommand(

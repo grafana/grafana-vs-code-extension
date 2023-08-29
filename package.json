@@ -17,6 +17,17 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "customEditors": [
+			{
+				"viewType": "grafana.dashboard",
+				"displayName": "Grafana",
+				"selector": [
+					{
+						"filenamePattern": "*.grafana"
+					}
+				]
+			}
+		],
     "commands": [
       {
         "command": "grafana-vscode.openUrl",

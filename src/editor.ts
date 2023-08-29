@@ -1,0 +1,84 @@
+import * as vscode from 'vscode';
+import * as fs from "fs";
+import { setCurrentFileName, port } from "./server";
+
+export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
+
+	static webviewContent = "";
+
+	public static register(context: vscode.ExtensionContext): vscode.Disposable {
+		const provider = new GrafanaEditorProvider(context);
+		const providerRegistration = vscode.window.registerCustomEditorProvider(GrafanaEditorProvider.viewType, provider);
+		this.webviewContent = fs.readFileSync(context.asAbsolutePath("public/webview.html"), "utf-8");
+		return providerRegistration;
+	}
+
+	private static readonly viewType = 'grafana.dashboard';
+
+	constructor(
+		private readonly context: vscode.ExtensionContext
+	) { }
+
+	/**
+	 * Called when our custom editor is opened.
+	 */
+	public async resolveCustomTextEditor(
+		document: vscode.TextDocument,
+		webviewPanel: vscode.WebviewPanel,
+		_token: vscode.CancellationToken
+	): Promise<void> {
+		
+		webviewPanel.webview.options = {
+			enableScripts: true,
+		};
+
+		setCurrentFileName(document.uri.fsPath);
+		console.log(document.uri.fsPath);
+
+		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
+
+		function updateWebview() {
+			webviewPanel.webview.postMessage({
+				type: 'update',
+				text: document.getText(),
+			});
+		}
+
+		// Update webview if text for *this* document changes
+		const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
+			if (e.document.uri.toString() === document.uri.toString()) {
+				updateWebview();
+			}
+		});
+
+		// Make sure we get rid of the listener when our editor is closed.
+		webviewPanel.onDidDispose(() => {
+			changeDocumentSubscription.dispose();
+		});
+
+		updateWebview();
+	}
+
+	/**
+	 * Get the static html used for the editor webviews.
+	 */
+	private getHtmlForWebview(webview: vscode.Webview): string {
+		// Local path to script and css for the webview
+		//const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(
+		//	this.context.extensionUri, 'media', 'reset.css'));
+
+		return GrafanaEditorProvider.webviewContent.replaceAll("${port}", port.toString());
+	}
+
+	/**
+	 * Save a resource
+	 */
+	private saveResource(document: vscode.TextDocument, text: string) {
+		const edit = new vscode.WorkspaceEdit();
+		edit.replace(document.uri,
+			new vscode.Range(0, 0, document.lineCount, 0),
+			text);
+
+		return vscode.workspace.applyEdit(edit);
+	}
+}
