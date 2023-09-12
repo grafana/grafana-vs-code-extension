@@ -13,7 +13,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "onWebviewPanel:grafana.dashboard"
   ],
   "main": "./dist/extension.js",
   "contributes": {
