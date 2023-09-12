@@ -13,7 +13,7 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
 		return providerRegistration;
 	}
 
-	private static readonly viewType = 'grafana.dashboard';
+	static readonly viewType = 'grafana.dashboard';
 
 	constructor(
 		private readonly context: vscode.ExtensionContext
@@ -26,14 +26,13 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
 		document: vscode.TextDocument,
 		webviewPanel: vscode.WebviewPanel,
 		_token: vscode.CancellationToken
-	): Promise<void> {
+	) {
 		
 		webviewPanel.webview.options = {
 			enableScripts: true,
 		};
 
 		setCurrentFileName(document.uri.fsPath);
-		console.log(document.uri.fsPath);
 
 		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
 
@@ -43,6 +42,10 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
 				text: document.getText(),
 			});
 		}
+
+		webviewPanel.onDidChangeViewState(e=>{
+			setCurrentFileName(document.uri.fsPath);
+		});
 
 		// Update webview if text for *this* document changes
 		const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
@@ -63,22 +66,6 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
 	 * Get the static html used for the editor webviews.
 	 */
 	private getHtmlForWebview(webview: vscode.Webview): string {
-		// Local path to script and css for the webview
-		//const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(
-		//	this.context.extensionUri, 'media', 'reset.css'));
-
 		return GrafanaEditorProvider.webviewContent.replaceAll("${port}", port.toString());
-	}
-
-	/**
-	 * Save a resource
-	 */
-	private saveResource(document: vscode.TextDocument, text: string) {
-		const edit = new vscode.WorkspaceEdit();
-		edit.replace(document.uri,
-			new vscode.Range(0, 0, document.lineCount, 0),
-			text);
-
-		return vscode.workspace.applyEdit(edit);
 	}
 }
