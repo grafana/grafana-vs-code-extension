@@ -13,10 +13,21 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "onWebviewPanel:grafana.dashboard"
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "customEditors": [
+			{
+				"viewType": "grafana.dashboard",
+				"displayName": "Grafana",
+				"selector": [
+					{
+						"filenamePattern": "*.grafana"
+					}
+				]
+			}
+		],
     "commands": [
       {
         "command": "grafana-vscode.openUrl",
@@ -36,6 +47,13 @@
         }
       ]
     },
+    "iconThemes": [
+      {
+        "id": "grafana",
+        "label": "Grafana",
+        "path": "./public/icon-theme.json"
+      }
+    ],
     "configuration": {
       "title": "Grafana VS Code Extension",
       "properties": {
