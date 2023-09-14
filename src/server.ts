@@ -8,7 +8,7 @@ import { detectRequestSource } from "./middleware";
 import axios, { AxiosResponse, AxiosError } from "axios";
 
 let currentFileName: string | null = null;
-export let port = 3004;
+export let port = 0;
 
 export function setCurrentFileName(fileName: string) {
   currentFileName = fileName;
@@ -153,7 +153,7 @@ export function startServer() {
   server.listen(0, () => {
     //@ts-expect-error
     port = server?.address()?.port;
-    console.log("Server started");
+    console.log("Server started on port", port);
   });
 }
 
