@@ -1,0 +1,10 @@
+{
+    "iconDefinitions": {
+        "grafana": {
+          "iconPath": "./grafana_icon.svg"
+        }
+    },
+    "fileExtensions": {
+        "grafana": "grafana"
+    }
+}

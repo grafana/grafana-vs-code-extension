@@ -47,6 +47,13 @@
         }
       ]
     },
+    "iconThemes": [
+      {
+        "id": "grafana",
+        "label": "Grafana",
+        "path": "./public/icon-theme.json"
+      }
+    ],
     "configuration": {
       "title": "Grafana VS Code Extension",
       "properties": {
