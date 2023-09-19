@@ -1,19 +1,21 @@
 import * as vscode from 'vscode';
 import * as fs from "fs";
-import { setCurrentFileName, port } from "./server";
+import { configureFile, port } from "./server";
 
 export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
 
 	static webviewContent = "";
+	static webviewURL = "/d/vscode/dashboard";
+	static readonly viewType = 'grafana.dashboard';
 
 	public static register(context: vscode.ExtensionContext): vscode.Disposable {
 		const provider = new GrafanaEditorProvider(context);
 		const providerRegistration = vscode.window.registerCustomEditorProvider(GrafanaEditorProvider.viewType, provider);
 		this.webviewContent = fs.readFileSync(context.asAbsolutePath("public/webview.html"), "utf-8");
+		this.webviewContent = this.webviewContent.replaceAll("${editor}", "VSCode");
+		this.webviewContent = this.webviewContent.replaceAll("${url}", GrafanaEditorProvider.webviewURL);
 		return providerRegistration;
 	}
-
-	static readonly viewType = 'grafana.dashboard';
 
 	constructor(
 		private readonly context: vscode.ExtensionContext
@@ -32,9 +34,7 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
 			enableScripts: true,
 		};
 
-		setCurrentFileName(document.uri.fsPath);
-
-		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
+		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview, document.uri.fsPath);
 
 		function updateWebview() {
 			webviewPanel.webview.postMessage({
@@ -44,7 +44,6 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
 		}
 
 		webviewPanel.onDidChangeViewState(e=>{
-			setCurrentFileName(document.uri.fsPath);
 		});
 
 		// Update webview if text for *this* document changes
@@ -65,7 +64,13 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
 	/**
 	 * Get the static html used for the editor webviews.
 	 */
-	private getHtmlForWebview(webview: vscode.Webview): string {
-		return GrafanaEditorProvider.webviewContent.replaceAll("${port}", port.toString());
+	private getHtmlForWebview(webview: vscode.Webview, fspath: string): string {
+		const uid = configureFile(fspath);
+		console.log(`UID FOR ${fspath} is ${uid} *******`);
+		let view = GrafanaEditorProvider.webviewContent.replaceAll("${filename}", fspath);
+		view = view.replaceAll("${port}", port.toString());
+		view = view.replaceAll("${uid}", uid);
+		console.log("HTML:", view);
+		return view;
 	}
 }

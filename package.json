@@ -18,16 +18,16 @@
   "main": "./dist/extension.js",
   "contributes": {
     "customEditors": [
-			{
-				"viewType": "grafana.dashboard",
-				"displayName": "Grafana",
-				"selector": [
-					{
-						"filenamePattern": "*.grafana"
-					}
-				]
-			}
-		],
+      {
+        "viewType": "grafana.dashboard",
+        "displayName": "Grafana",
+        "selector": [
+          {
+            "filenamePattern": "*.grafana"
+          }
+        ]
+      }
+    ],
     "commands": [
       {
         "command": "grafana-vscode.openUrl",
@@ -112,6 +112,7 @@
     "express": "^4.18.2",
     "http-proxy": "^1.18.1",
     "http-proxy-middleware": "^2.0.6",
-    "open": "^8.4.2"
+    "open": "^8.4.2",
+    "transformer-proxy": "^0.3.5"
   }
 }

@@ -6,12 +6,16 @@ import * as vscode from "vscode";
 import * as cors from "cors";
 import { detectRequestSource } from "./middleware";
 import axios, { AxiosResponse, AxiosError } from "axios";
+import * as util from "./util";
 
-let currentFileName: string | null = null;
 export let port = 0;
 
-export function setCurrentFileName(fileName: string) {
-  currentFileName = fileName;
+let fileMapping = new Map<string, string>();
+
+export function configureFile(fileName: string): string {
+  const nonce = util.getNonce();
+  fileMapping.set(nonce, fileName);
+  return nonce;
 }
 
 let server: Server;
@@ -25,6 +29,7 @@ export function verifyConnection(success: any, failure: any) {
     .get(URL, {
       maxRedirects: 0,
       headers: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         Authorization: `Bearer ${token}`,
       },
     })
@@ -63,23 +68,48 @@ export function startServer() {
       Authorization: `Bearer ${token}`,
     },
   });
+  console.log("USING TOKEN", token);
 
   server.on("upgrade", function (req, socket, head) {
     proxy.ws(req, socket, head, {});
   });
 
-  app.post("/save-dashboard", express.json(), cors(corsOptions), (req, res) => {
-    const data = req.body;
+  proxy.on('proxyRes', function(proxyRes, req, res) {
+    console.log("X-Frame-Options 1:", proxyRes.headers["X-Frame-Options"]);
+    console.log("X-Frame-Options 2:", res.getHeader("X-Frame-Options"));
+    res.setHeader('X-Allow-Embedding', 'truex');
+    res.removeHeader('X-Frame-Options');
+    //res.setHeader('X-Frame-Options', 'allowx');
+    console.log("X-Frame-Options 3:", res.getHeader("X-Frame-Options"));
+  });
 
-    if (!currentFileName) {
-      console.error("No file name set");
-      res.sendStatus(500);
-      return;
+  app.get("/dx/:uid/:slug", async function (req, res) {
+    console.log(`URL[${URL}]`);
+    console.log(`req.url:${req.url}`);
+    console.log(`Full URL:${URL+req.url}`);
+    try {
+      const resp = await axios.get(URL + req.url, {
+        maxRedirects: 0,
+        headers: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      res.write(resp.data);
+      //console.log(res.header["X-Frame-options"])
+      //proxy.web(req, res, {});
+    } catch (e) {
+      res.write(e);
     }
+  });
 
-    const jsonData = JSON.stringify(data.dashboard, null, 2);
+  app.post("/api/dashboards/db/", express.json(), cors(corsOptions), (req, res) => {
+    const uid = req.body.dashboard.uid;
+    const filename = fileMapping.get(uid)+"";
+    
+    const jsonData = JSON.stringify(req.body.dashboard, null, 2);
 
-    fs.writeFile(currentFileName, jsonData, "utf-8", (err) => {
+    fs.writeFile(filename, jsonData, "utf-8", (err) => {
       if (err) {
         console.error("Error writing file:", err);
         res.sendStatus(500);
@@ -89,14 +119,10 @@ export function startServer() {
     });
   });
 
-  app.get("/load-dashboard", express.json(), cors(corsOptions), (req, res) => {
-    if (!currentFileName) {
-      console.error("No file name set");
-      res.sendStatus(500);
-      return;
-    }
+  app.get("/api/dashboards/uid/:uid", express.json(), cors(corsOptions), (req, res) => {
 
-    fs.readFile(currentFileName, "utf-8", (err, data) => {
+    const filename = fileMapping.get(req.params.uid);
+    fs.readFile(filename+"", "utf-8", (err, data) => {
       if (err) {
         console.error("Error reading file:", err);
         res.sendStatus(500);
@@ -104,10 +130,6 @@ export function startServer() {
       }
       res.send(data);
     });
-  });
-
-  app.get("/d-embed", function (req, res) {
-    proxy.web(req, res, {});
   });
 
   app.get("/public/*", function (req, res) {
