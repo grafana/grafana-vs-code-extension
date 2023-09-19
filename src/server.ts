@@ -153,7 +153,7 @@ export function startServer() {
   server.listen(0, () => {
     //@ts-expect-error
     port = server?.address()?.port;
-    console.log("Server started on port", port);
+    console.log("Server started");
   });
 }
 
