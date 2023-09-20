@@ -36,7 +36,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
         const fileName = uri?.fsPath;
 
         if (fileName) {
-          configureFile(fileName);
+          configureFile(fileName, "XXX");
 
           function success() {
             openedFiles.add(fileName);

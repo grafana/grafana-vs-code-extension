@@ -12,10 +12,8 @@ export let port = 0;
 
 let fileMapping = new Map<string, string>();
 
-export function configureFile(fileName: string): string {
-  const nonce = util.getNonce();
-  fileMapping.set(nonce, fileName);
-  return nonce;
+export function configureFile(fileName: string, uid: string) {
+  fileMapping.set(uid, fileName);
 }
 
 let server: Server;
@@ -68,25 +66,23 @@ export function startServer() {
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log("USING TOKEN", token);
 
   server.on("upgrade", function (req, socket, head) {
     proxy.ws(req, socket, head, {});
   });
 
-  proxy.on('proxyRes', function(proxyRes, req, res) {
-    console.log("X-Frame-Options 1:", proxyRes.headers["X-Frame-Options"]);
-    console.log("X-Frame-Options 2:", res.getHeader("X-Frame-Options"));
-    res.setHeader('X-Allow-Embedding', 'truex');
-    res.removeHeader('X-Frame-Options');
-    //res.setHeader('X-Frame-Options', 'allowx');
-    console.log("X-Frame-Options 3:", res.getHeader("X-Frame-Options"));
-  });
-
-  app.get("/dx/:uid/:slug", async function (req, res) {
-    console.log(`URL[${URL}]`);
-    console.log(`req.url:${req.url}`);
-    console.log(`Full URL:${URL+req.url}`);
+  /*
+   * Note, this method avoids using `proxy.web`, implementing its own proxy
+   * event using Axios. This is because Grafana returns `X-Frame-Options: deny`
+   * which breaks our ability to place Grafana inside an iframe. `http-proxy`
+   * will not remove that header once it is added. Therefore we need a different
+   * form of proxy.
+   *
+   * This security protection does not apply to this situation - given we own
+   * both the connection to the backend as well as the webview. Therefore
+   * it is reasonable remove this header in this context.
+  */
+  app.get("/d/:uid/:slug", async function (req, res) {
     try {
       const resp = await axios.get(URL + req.url, {
         maxRedirects: 0,
@@ -96,11 +92,30 @@ export function startServer() {
         },
       });
       res.write(resp.data);
-      //console.log(res.header["X-Frame-options"])
-      //proxy.web(req, res, {});
     } catch (e) {
       res.write(e);
     }
+  });
+
+  app.get("/api/dashboards/uid/:uid", express.json(), cors(corsOptions), (req, res) => {
+
+    const filename = fileMapping.get(req.params.uid);
+    fs.readFile(filename+"", "utf-8", (err, data) => {
+      if (err) {
+        console.error("Error reading file:", err);
+        res.sendStatus(500);
+        return;
+      }
+      const wrapper = {
+        "dashboard": JSON.parse(data),
+        "meta": {
+          "isStarred": false,
+          "folderId": 0,
+        }
+      };
+
+      res.send(wrapper);
+    });
   });
 
   app.post("/api/dashboards/db/", express.json(), cors(corsOptions), (req, res) => {
@@ -119,58 +134,55 @@ export function startServer() {
     });
   });
 
-  app.get("/api/dashboards/uid/:uid", express.json(), cors(corsOptions), (req, res) => {
-
-    const filename = fileMapping.get(req.params.uid);
-    fs.readFile(filename+"", "utf-8", (err, data) => {
-      if (err) {
-        console.error("Error reading file:", err);
-        res.sendStatus(500);
-        return;
-      }
-      res.send(data);
+  const mustProxyGET = [
+    "/public/*",
+    "/api/datasources/proxy/*",
+    "/api/datasources/*",
+  ];
+  for (let path of mustProxyGET) {
+    app.get(path, function(req, res) {
+      proxy.web(req, res, {});
     });
-  });
+  }
 
-  app.get("/public/*", function (req, res) {
-    proxy.web(req, res, {});
-  });
+  const mustProxyPOST = [
+    "/api/ds/query",
+  ];
+  for (let path of mustProxyPOST) {
+    app.post(path, function(req, res) {
+      proxy.web(req, res, {});
+    });
+  }
 
-  app.get("/api/datasources/proxy/*", function (req, res) {
-    proxy.web(req, res, {});
-  });
+  const blockJSONget: { [name: string]: any } = {
+    /* eslint-disable @typescript-eslint/naming-convention */
+    "/api/ma/events": [],
+    "/api/live/publish": [],
+    "/api/live/list": [],
+    "/api/user/orgs": [],
+    "/api/annotations": [],
+    "/api/search": [],
+    "/api/prometheus/grafana/api/v1/rules": {status: "success", data: {groups:[]}},
+    "/avatar/*": "",
+    /* eslint-enable @typescript-eslint/naming-convention */
+  };
+  for (let path in blockJSONget) {
+    app.get(path, function(req, res) {
+      res.send(blockJSONget[path]);
+    });
+  }
 
-  app.get("/api/datasources/*", function (req, res) {
-    proxy.web(req, res, {});
-  });
-
-  app.post("/api/ds/query", function (req, res) {
-    proxy.web(req, res, {});
-  });
-
-  app.post("/api/frontend-metrics", function (req, res) {
-    res.send([]);
-  });
-
-  app.post("/api/ma/events", function (req, res) {
-    res.send([]);
-  });
-
-  app.post("/api/live/publish", function (req, res) {
-    res.send([]);
-  });
-
-  app.get("/api/live/list", function (req, res) {
-    res.send([]);
-  });
-
-  app.get("/api/user/orgs", function (req, res) {
-    res.send([]);
-  });
-
-  app.post("/api/search-v2", function (req, res) {
-    res.send([]);
-  });
+  const blockJSONpost: { [name: string]: any } = {
+    /* eslint-disable @typescript-eslint/naming-convention */
+    "/api/frontend-metrics": [],
+    "/api/search-v2": [],
+    /* eslint-enable @typescript-eslint/naming-convention */
+  };
+  for (let path in blockJSONpost) {
+    app.post(path, function(req, res) {
+      res.send(blockJSONpost[path]);
+    });
+  }
 
   server.listen(0, () => {
     //@ts-expect-error

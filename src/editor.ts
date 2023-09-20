@@ -34,7 +34,7 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
 			enableScripts: true,
 		};
 
-		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview, document.uri.fsPath);
+		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview, document);
 
 		function updateWebview() {
 			webviewPanel.webview.postMessage({
@@ -64,13 +64,13 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
 	/**
 	 * Get the static html used for the editor webviews.
 	 */
-	private getHtmlForWebview(webview: vscode.Webview, fspath: string): string {
-		const uid = configureFile(fspath);
-		console.log(`UID FOR ${fspath} is ${uid} *******`);
-		let view = GrafanaEditorProvider.webviewContent.replaceAll("${filename}", fspath);
+	private getHtmlForWebview(webview: vscode.Webview, document: vscode.TextDocument): string {
+		const dash = JSON.parse(document.getText());
+		const uid = (dash.uid as string);
+		configureFile(document.uri.fsPath, uid);
+		let view = GrafanaEditorProvider.webviewContent.replaceAll("${filename}", document.uri.fsPath);
 		view = view.replaceAll("${port}", port.toString());
 		view = view.replaceAll("${uid}", uid);
-		console.log("HTML:", view);
 		return view;
 	}
 }
