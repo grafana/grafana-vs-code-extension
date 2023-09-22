@@ -10,7 +10,15 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
 
 	public static register(context: vscode.ExtensionContext): vscode.Disposable {
 		const provider = new GrafanaEditorProvider(context);
-		const providerRegistration = vscode.window.registerCustomEditorProvider(GrafanaEditorProvider.viewType, provider);
+		const providerRegistration = vscode.window.registerCustomEditorProvider(
+			GrafanaEditorProvider.viewType,
+			provider,
+			{
+				webviewOptions: {
+				    retainContextWhenHidden: true,
+			    }
+		    },
+		);
 		this.webviewContent = fs.readFileSync(context.asAbsolutePath("public/webview.html"), "utf-8");
 		this.webviewContent = this.webviewContent.replaceAll("${editor}", "VSCode");
 		this.webviewContent = this.webviewContent.replaceAll("${url}", GrafanaEditorProvider.webviewURL);
