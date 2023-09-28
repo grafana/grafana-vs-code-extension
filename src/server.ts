@@ -10,12 +10,6 @@ import * as util from "./util";
 
 export let port = 0;
 
-let fileMapping = new Map<string, string>();
-
-export function configureFile(fileName: string, uid: string) {
-  fileMapping.set(uid, fileName);
-}
-
 let server: Server;
 
 export function verifyConnection(success: any, failure: any) {
@@ -35,7 +29,7 @@ export function verifyConnection(success: any, failure: any) {
       success();
     })
     .catch((err: AxiosError) => {
-      if (err.response?.status == 302) {
+      if (err.response?.status === 302) {
         failure("Authentication error");
       } else {
         failure(err);
@@ -98,19 +92,21 @@ export function startServer() {
   });
 
   app.get("/api/dashboards/uid/:uid", express.json(), cors(corsOptions), (req, res) => {
-
-    const filename = fileMapping.get(req.params.uid);
+    const refererParams = new URLSearchParams(req.headers.referer);
+    const filename = refererParams.get("filename");
     fs.readFile(filename+"", "utf-8", (err, data) => {
       if (err) {
         console.error("Error reading file:", err);
         res.sendStatus(500);
         return;
       }
+      const dash: any = JSON.parse(data);
       const wrapper = {
-        "dashboard": JSON.parse(data),
+        "dashboard": dash,
         "meta": {
           "isStarred": false,
           "folderId": 0,
+          "url": `/d/${dash.uid}/slug`,
         }
       };
 
@@ -119,9 +115,9 @@ export function startServer() {
   });
 
   app.post("/api/dashboards/db/", express.json(), cors(corsOptions), (req, res) => {
-    const uid = req.body.dashboard.uid;
-    const filename = fileMapping.get(uid)+"";
-    
+    const refererParams = new URLSearchParams(req.headers.referer);
+    const filename = refererParams.get("filename") + "";
+    const uid = req.headers.referer?.split("/")[4];
     const jsonData = JSON.stringify(req.body.dashboard, null, 2);
 
     fs.writeFile(filename, jsonData, "utf-8", (err) => {
@@ -129,9 +125,24 @@ export function startServer() {
         console.error("Error writing file:", err);
         res.sendStatus(500);
       } else {
-        res.sendStatus(200);
+        res.send({
+          "id": 1,
+          "slug": "slug",
+          "status": "success",
+          "uid": uid,
+          "url": `/d/${uid}/slug`,
+          "version": 1
+        });
       }
     });
+  });
+
+  app.get("/api/access-control/user/actions", express.json(), cors(corsOptions), (req, res)=>{
+    res.send({
+       /* eslint-disable-next-line @typescript-eslint/naming-convention */
+      "dashboards:write":true,
+    });
+    return;
   });
 
   const mustProxyGET = [

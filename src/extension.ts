@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import * as fs from "fs";
-import { configureFile, verifyConnection, startServer, stopServer, port } from "./server";
+import { verifyConnection, startServer, stopServer, port } from "./server";
 import { GrafanaEditorProvider } from './editor';
 
 // This method is called when your extension is activated
@@ -36,7 +36,6 @@ export async function activate(ctx: vscode.ExtensionContext) {
         const fileName = uri?.fsPath;
 
         if (fileName) {
-          configureFile(fileName, "XXX");
 
           function success() {
             openedFiles.add(fileName);
