@@ -3,7 +3,7 @@ import { Response, Request, NextFunction } from "express";
 export function detectRequestSource(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const userAgent = req.headers["user-agent"];
 

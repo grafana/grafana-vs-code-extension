@@ -75,7 +75,7 @@ export function startServer() {
    * This security protection does not apply to this situation - given we own
    * both the connection to the backend as well as the webview. Therefore
    * it is reasonable remove this header in this context.
-  */
+   */
   app.get("/d/:uid/:slug", async function (req, res) {
     try {
       const resp = await axios.get(URL + req.url, {
@@ -91,63 +91,78 @@ export function startServer() {
     }
   });
 
-  app.get("/api/dashboards/uid/:uid", express.json(), cors(corsOptions), (req, res) => {
-    const refererParams = new URLSearchParams(req.headers.referer);
-    const filename = refererParams.get("filename");
-    fs.readFile(filename+"", "utf-8", (err, data) => {
-      if (err) {
-        console.error("Error reading file:", err);
-        res.sendStatus(500);
+  app.get(
+    "/api/dashboards/uid/:uid",
+    express.json(),
+    cors(corsOptions),
+    (req, res) => {
+      const refererParams = new URLSearchParams(req.headers.referer);
+      const filename = refererParams.get("filename");
+      fs.readFile(filename + "", "utf-8", (err, data) => {
+        if (err) {
+          console.error("Error reading file:", err);
+          res.sendStatus(500);
+          return;
+        }
+        const dash: any = JSON.parse(data);
+        const wrapper = {
+          dashboard: dash,
+          meta: {
+            isStarred: false,
+            folderId: 0,
+            url: `/d/${dash.uid}/slug`,
+          },
+        };
+
+        res.send(wrapper);
+      });
+    },
+  );
+
+  app.post(
+    "/api/dashboards/db/",
+    express.json(),
+    cors(corsOptions),
+    (req, res) => {
+      const refererParams = new URLSearchParams(req.headers.referer);
+      const filename = refererParams.get("filename");
+      if (!filename) {
+        res.send(500);
         return;
       }
-      const dash: any = JSON.parse(data);
-      const wrapper = {
-        "dashboard": dash,
-        "meta": {
-          "isStarred": false,
-          "folderId": 0,
-          "url": `/d/${dash.uid}/slug`,
+      const uid = req.headers.referer?.split("/")[4];
+      const jsonData = JSON.stringify(req.body.dashboard, null, 2);
+
+      fs.writeFile(filename, jsonData, "utf-8", (err) => {
+        if (err) {
+          console.error("Error writing file:", err);
+          res.sendStatus(500);
+        } else {
+          res.send({
+            id: 1,
+            slug: "slug",
+            status: "success",
+            uid: uid,
+            url: `/d/${uid}/slug`,
+            version: 1,
+          });
         }
-      };
+      });
+    },
+  );
 
-      res.send(wrapper);
-    });
-  });
-
-  app.post("/api/dashboards/db/", express.json(), cors(corsOptions), (req, res) => {
-    const refererParams = new URLSearchParams(req.headers.referer);
-    const filename = refererParams.get("filename");
-    if (!filename) {
-      res.send(500);
+  app.get(
+    "/api/access-control/user/actions",
+    express.json(),
+    cors(corsOptions),
+    (req, res) => {
+      res.send({
+        /* eslint-disable-next-line @typescript-eslint/naming-convention */
+        "dashboards:write": true,
+      });
       return;
-    }
-    const uid = req.headers.referer?.split("/")[4];
-    const jsonData = JSON.stringify(req.body.dashboard, null, 2);
-
-    fs.writeFile(filename, jsonData, "utf-8", (err) => {
-      if (err) {
-        console.error("Error writing file:", err);
-        res.sendStatus(500);
-      } else {
-        res.send({
-          "id": 1,
-          "slug": "slug",
-          "status": "success",
-          "uid": uid,
-          "url": `/d/${uid}/slug`,
-          "version": 1
-        });
-      }
-    });
-  });
-
-  app.get("/api/access-control/user/actions", express.json(), cors(corsOptions), (req, res)=>{
-    res.send({
-       /* eslint-disable-next-line @typescript-eslint/naming-convention */
-      "dashboards:write":true,
-    });
-    return;
-  });
+    },
+  );
 
   const mustProxyGET = [
     "/public/*",
@@ -155,16 +170,14 @@ export function startServer() {
     "/api/datasources/*",
   ];
   for (const path of mustProxyGET) {
-    app.get(path, function(req, res) {
+    app.get(path, function (req, res) {
       proxy.web(req, res, {});
     });
   }
 
-  const mustProxyPOST = [
-    "/api/ds/query",
-  ];
+  const mustProxyPOST = ["/api/ds/query"];
   for (const path of mustProxyPOST) {
-    app.post(path, function(req, res) {
+    app.post(path, function (req, res) {
       proxy.web(req, res, {});
     });
   }
@@ -177,12 +190,15 @@ export function startServer() {
     "/api/user/orgs": [],
     "/api/annotations": [],
     "/api/search": [],
-    "/api/prometheus/grafana/api/v1/rules": {status: "success", data: {groups:[]}},
+    "/api/prometheus/grafana/api/v1/rules": {
+      status: "success",
+      data: { groups: [] },
+    },
     "/avatar/*": "",
     /* eslint-enable @typescript-eslint/naming-convention */
   };
   for (const path in blockJSONget) {
-    app.get(path, function(req, res) {
+    app.get(path, function (req, res) {
       res.send(blockJSONget[path]);
     });
   }
@@ -194,7 +210,7 @@ export function startServer() {
     /* eslint-enable @typescript-eslint/naming-convention */
   };
   for (const path in blockJSONpost) {
-    app.post(path, function(req, res) {
+    app.post(path, function (req, res) {
       res.send(blockJSONpost[path]);
     });
   }

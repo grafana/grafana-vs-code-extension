@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import { verifyConnection, startServer, stopServer, port } from "./server";
-import { GrafanaEditorProvider } from './editor';
+import { GrafanaEditorProvider } from "./editor";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -22,38 +22,37 @@ export async function activate(ctx: vscode.ExtensionContext) {
           uri.with({
             path: uri?.fsPath,
           }),
-          GrafanaEditorProvider.viewType
+          GrafanaEditorProvider.viewType,
         );
 
-    return;
+        return;
         const panel = vscode.window.createWebviewPanel(
           "webview",
           "Dashboard Editor",
           vscode.ViewColumn.One,
-          { enableScripts: true }
+          { enableScripts: true },
         );
 
         const fileName = uri?.fsPath;
 
         if (fileName) {
-
           function success() {
             openedFiles.add(fileName);
             panel.webview.html = fs
-            .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
-            .replaceAll("${port}", port.toString());
+              .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
+              .replaceAll("${port}", port.toString());
 
             panel.onDidDispose(() => {
               openedFiles.delete(fileName);
             });
-          };
+          }
           function failure(error: any) {
             panel.webview.html = `<h1>A problem occurred connecting to Grafana</h1><p>${error}</p>`;
           }
           verifyConnection(success, failure);
         }
-      }
-    )
+      },
+    ),
   );
 
   ctx.subscriptions.push(
@@ -102,12 +101,12 @@ export async function activate(ctx: vscode.ExtensionContext) {
             { modal: false },
             { title: "Yes" },
             { title: "No" },
-            { title: "Don't show again" }
+            { title: "Don't show again" },
           );
           if (response && response.title === "Yes") {
             vscode.commands.executeCommand(
               "grafana-vscode.openUrl",
-              e.document.uri
+              e.document.uri,
             );
           }
           if (response && response.title === "Don't show again") {
@@ -117,7 +116,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
           }
         } catch {}
       }
-    })
+    }),
   );
 }
 
