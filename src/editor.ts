@@ -74,7 +74,7 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
 	 */
 	private getHtmlForWebview(document: vscode.TextDocument): string {
 		const dash = JSON.parse(document.getText());
-		const uid = (dash.uid as string);
+		const uid: string = dash.uid;
 		let view = GrafanaEditorProvider.webviewContent.replaceAll("${filename}", document.uri.fsPath);
 		view = view.replaceAll("${port}", port.toString());
 		view = view.replaceAll("${uid}", uid);

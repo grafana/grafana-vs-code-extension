@@ -116,7 +116,11 @@ export function startServer() {
 
   app.post("/api/dashboards/db/", express.json(), cors(corsOptions), (req, res) => {
     const refererParams = new URLSearchParams(req.headers.referer);
-    const filename = refererParams.get("filename") + "";
+    const filename = refererParams.get("filename");
+    if (!filename) {
+      res.send(500);
+      return;
+    }
     const uid = req.headers.referer?.split("/")[4];
     const jsonData = JSON.stringify(req.body.dashboard, null, 2);
 
@@ -150,7 +154,7 @@ export function startServer() {
     "/api/datasources/proxy/*",
     "/api/datasources/*",
   ];
-  for (let path of mustProxyGET) {
+  for (const path of mustProxyGET) {
     app.get(path, function(req, res) {
       proxy.web(req, res, {});
     });
@@ -159,7 +163,7 @@ export function startServer() {
   const mustProxyPOST = [
     "/api/ds/query",
   ];
-  for (let path of mustProxyPOST) {
+  for (const path of mustProxyPOST) {
     app.post(path, function(req, res) {
       proxy.web(req, res, {});
     });
@@ -177,7 +181,7 @@ export function startServer() {
     "/avatar/*": "",
     /* eslint-enable @typescript-eslint/naming-convention */
   };
-  for (let path in blockJSONget) {
+  for (const path in blockJSONget) {
     app.get(path, function(req, res) {
       res.send(blockJSONget[path]);
     });
@@ -189,7 +193,7 @@ export function startServer() {
     "/api/search-v2": [],
     /* eslint-enable @typescript-eslint/naming-convention */
   };
-  for (let path in blockJSONpost) {
+  for (const path in blockJSONpost) {
     app.post(path, function(req, res) {
       res.send(blockJSONpost[path]);
     });
