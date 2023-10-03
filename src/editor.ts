@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
-import { port } from "./server";
+import { port, verifyConnection } from "./server";
 
 export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
   static webviewContent = "";
@@ -24,6 +24,7 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
       "utf-8",
     );
     this.webviewContent = this.webviewContent.replaceAll("${editor}", "VSCode");
+	this.webviewErrorContent = fs.readFileSync(context.asAbsolutePath("public/webview-error.html"), "utf-8");
     return providerRegistration;
   }
 
@@ -40,8 +41,6 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
     webviewPanel.webview.options = {
       enableScripts: true,
     };
-
-    webviewPanel.webview.html = this.getHtmlForWebview(document);
 
     function updateWebview() {
       webviewPanel.webview.postMessage({
@@ -66,7 +65,16 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
       changeDocumentSubscription.dispose();
     });
 
-    updateWebview();
+	const self = this;
+	function verifySuccess() {
+			webviewPanel.webview.html = self.getHtmlForWebview(document);
+			updateWebview();
+	}
+	function verifyFailure(error: any) {
+			webviewPanel.webview.html = self.getHtmlForWebviewError(error);
+			updateWebview();
+	}
+	verifyConnection(verifySuccess, verifyFailure);
   }
 
   /**
@@ -81,6 +89,14 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
     );
     view = view.replaceAll("${port}", port.toString());
     view = view.replaceAll("${uid}", uid);
+    return view;
+  }
+
+  /**
+    * Get the static html used for the editor webviews.
+    */
+  private getHtmlForWebviewError(error: any): string {
+    let view = GrafanaEditorProvider.webviewErrorContent.replaceAll("${error}", error);
     return view;
   }
 }
