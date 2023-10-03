@@ -24,7 +24,10 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
       "utf-8",
     );
     this.webviewContent = this.webviewContent.replaceAll("${editor}", "VSCode");
-	this.webviewErrorContent = fs.readFileSync(context.asAbsolutePath("public/webview-error.html"), "utf-8");
+    this.webviewErrorContent = fs.readFileSync(
+      context.asAbsolutePath("public/webview-error.html"),
+      "utf-8",
+    );
     return providerRegistration;
   }
 
@@ -65,16 +68,16 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
       changeDocumentSubscription.dispose();
     });
 
-	const self = this;
-	function verifySuccess() {
-			webviewPanel.webview.html = self.getHtmlForWebview(document);
-			updateWebview();
-	}
-	function verifyFailure(error: any) {
-			webviewPanel.webview.html = self.getHtmlForWebviewError(error);
-			updateWebview();
-	}
-	verifyConnection(verifySuccess, verifyFailure);
+    const self = this;
+    function verifySuccess() {
+      webviewPanel.webview.html = self.getHtmlForWebview(document);
+      updateWebview();
+    }
+    function verifyFailure(error: any) {
+      webviewPanel.webview.html = self.getHtmlForWebviewError(error);
+      updateWebview();
+    }
+    verifyConnection(verifySuccess, verifyFailure);
   }
 
   /**
@@ -93,10 +96,13 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
   }
 
   /**
-    * Get the static html used for the editor webviews.
-    */
+   * Get the static html used for the editor webviews.
+   */
   private getHtmlForWebviewError(error: any): string {
-    let view = GrafanaEditorProvider.webviewErrorContent.replaceAll("${error}", error);
+    let view = GrafanaEditorProvider.webviewErrorContent.replaceAll(
+      "${error}",
+      error,
+    );
     return view;
   }
 }
