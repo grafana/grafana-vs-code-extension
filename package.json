@@ -1,9 +1,9 @@
 {
   "name": "grafana-vscode",
   "author": "Grafana Labs",
-  "displayName": "VS Code Extension for Grafana",
-  "description": "A Visual Studio Code extension for Grafana",
-  "version": "0.0.2",
+  "displayName": "Grafana Dashboard Editor",
+  "description": "Grafana Dashboard Editor",
+  "version": "0.0.5",
   "license": "Apache-2.0",
   "repository": "github:grafana/grafana-vs-code-extension",
   "engines": {

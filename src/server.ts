@@ -190,6 +190,7 @@ export function startServer() {
     "/api/user/orgs": [],
     "/api/annotations": [],
     "/api/search": [],
+    "/api/usage/*": [],
     "/api/prometheus/grafana/api/v1/rules": {
       status: "success",
       data: { groups: [] },
