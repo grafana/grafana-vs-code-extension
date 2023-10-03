@@ -72,7 +72,7 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
       webviewPanel.webview.html = this.getHtmlForWebview(document);
       updateWebview();
     };
-    const verifyFailure = (error: Error) => {
+    const verifyFailure = (error: string) => {
       webviewPanel.webview.html = this.getHtmlForWebviewError(error);
       updateWebview();
     };

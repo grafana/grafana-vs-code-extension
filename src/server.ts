@@ -32,7 +32,7 @@ export function verifyConnection(success: any, failure: any) {
       if (err.response?.status === 302) {
         failure("Authentication error");
       } else {
-        failure(err);
+        failure(err.message);
       }
     });
 }
