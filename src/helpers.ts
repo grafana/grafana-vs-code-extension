@@ -3,7 +3,7 @@ import * as http from "http";
 export function interceptResponse(
   proxyRes: http.IncomingMessage,
   res: http.ServerResponse<http.IncomingMessage>,
-  bodyFunc: (body: string) => string | Promise<string>
+  bodyFunc: (body: string) => string | Promise<string>,
 ) {
   let body = Buffer.from([]);
   proxyRes.on("data", function (data) {
@@ -40,7 +40,7 @@ export function unparseCookies(obj: any) {
 
 export function overrideCookies(
   originalCookies: string,
-  overrideCookies: string | undefined
+  overrideCookies: string | undefined,
 ) {
   const cookieObj = {} as any;
   if (originalCookies) {
