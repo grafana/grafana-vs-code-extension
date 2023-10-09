@@ -87,7 +87,7 @@ export function startServer() {
       });
       res.write(resp.data);
     } catch (e) {
-      res.write(e);
+      res.write((<Error>e).message);
     }
   });
 
