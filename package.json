@@ -93,6 +93,7 @@
     "@types/http-proxy": "^1.17.10",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
+    "@types/source-map-support": "^0.5.8",
     "@types/vscode": "^1.76.0",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
@@ -107,7 +108,6 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "@types/source-map-support": "^0.5.8",
     "axios": "^1.4.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
