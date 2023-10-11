@@ -101,7 +101,12 @@ export function startServer() {
     cors(corsOptions),
     (req, res) => {
       const refererParams = new URLSearchParams(req.headers.referer);
-      const filename = refererParams.get("filename") as string;
+      const filename = refererParams.get("filename");
+      if (filename === null) {
+        console.log("Filename not specified in referer");
+        res.sendStatus(500);
+        return;
+      }
       fs.readFile(filename, "utf-8", (err, data) => {
         if (err) {
           console.error("Error reading file:", err);
