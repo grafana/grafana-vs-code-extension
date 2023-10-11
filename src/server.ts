@@ -6,7 +6,6 @@ import * as vscode from "vscode";
 import * as cors from "cors";
 import { detectRequestSource } from "./middleware";
 import axios, { AxiosResponse, AxiosError } from "axios";
-import * as util from "./util";
 
 export let port = 0;
 
@@ -87,7 +86,12 @@ export function startServer() {
       });
       res.write(resp.data);
     } catch (e) {
-      res.write((<Error>e).message);
+      if (axios.isAxiosError(e)) {
+        res.write(e.message);
+      } else {
+        // Edge case: the error might not have the `message` property, so we write the error object
+        res.write(JSON.stringify(e));
+      }
     }
   });
 
@@ -97,8 +101,8 @@ export function startServer() {
     cors(corsOptions),
     (req, res) => {
       const refererParams = new URLSearchParams(req.headers.referer);
-      const filename = refererParams.get("filename");
-      fs.readFile(filename + "", "utf-8", (err, data) => {
+      const filename = refererParams.get("filename") as string;
+      fs.readFile(filename, "utf-8", (err, data) => {
         if (err) {
           console.error("Error reading file:", err);
           res.sendStatus(500);
