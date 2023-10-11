@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import { verifyConnection, startServer, stopServer, port } from "./server";
 import { GrafanaEditorProvider } from "./editor";
+import { install as installSourceMapSupport } from 'source-map-support';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -24,36 +25,10 @@ export async function activate(ctx: vscode.ExtensionContext) {
           }),
           GrafanaEditorProvider.viewType,
         );
-
-        return;
-        const panel = vscode.window.createWebviewPanel(
-          "webview",
-          "Dashboard Editor",
-          vscode.ViewColumn.One,
-          { enableScripts: true },
-        );
-
-        const fileName = uri?.fsPath;
-
-        if (fileName) {
-          function success() {
-            openedFiles.add(fileName);
-            panel.webview.html = fs
-              .readFileSync(ctx.asAbsolutePath("public/webview.html"), "utf-8")
-              .replaceAll("${port}", port.toString());
-
-            panel.onDidDispose(() => {
-              openedFiles.delete(fileName);
-            });
-          }
-          function failure(error: any) {
-            panel.webview.html = `<h1>A problem occurred connecting to Grafana</h1><p>${error}</p>`;
-          }
-          verifyConnection(success, failure);
-        }
-      },
-    ),
+      }),
   );
+
+  installSourceMapSupport();
 
   ctx.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (e) => {
