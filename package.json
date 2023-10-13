@@ -43,7 +43,8 @@
       ],
       "explorer/context": [
         {
-          "command": "grafana-vscode.openUrl"
+          "command": "grafana-vscode.openUrl",
+          "when": "resourceExtname == .json"
         }
       ]
     },
