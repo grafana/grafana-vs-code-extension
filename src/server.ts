@@ -217,13 +217,18 @@ export function startServer() {
     });
   }
 
-  server.listen(0, () => {
+  server.listen(port, () => {
     //@ts-expect-error
     port = server?.address()?.port;
     console.log("Server started");
   });
 }
 
+export function restartServer() {
+  console.log("Restarting server");
+  stopServer();
+  startServer();
+}
 export function stopServer() {
   if (server) {
     server.close();
