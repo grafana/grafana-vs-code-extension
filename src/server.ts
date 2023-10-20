@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as vscode from "vscode";
 import * as cors from "cors";
 import { detectRequestSource } from "./middleware";
-import axios, { AxiosResponse, AxiosError } from "axios";
+import axios from "axios";
 
 export let port = 0;
 
@@ -73,7 +73,6 @@ export function startServer() {
       res.write(resp.data);
     } catch (e) {
       if (axios.isAxiosError(e)) {
-        const err = e as AxiosError;
         if (e.response?.status === 302) {
           sendErrorPage(res, "Authentication error");
         } else {
