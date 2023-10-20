@@ -5,36 +5,11 @@ import * as fs from "fs";
 import * as vscode from "vscode";
 import * as cors from "cors";
 import { detectRequestSource } from "./middleware";
-import axios, { AxiosResponse, AxiosError } from "axios";
+import axios from "axios";
 
 export let port = 0;
 
 let server: Server;
-
-export function verifyConnection(success: any, failure: any) {
-  const settings = vscode.workspace.getConfiguration("grafana-vscode");
-  const URL = String(settings.get("URL"));
-  const token = String(settings.get("token"));
-
-  axios
-    .get(URL, {
-      maxRedirects: 0,
-      headers: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then((res: AxiosResponse) => {
-      success();
-    })
-    .catch((err: AxiosError) => {
-      if (err.response?.status === 302) {
-        failure("Authentication error");
-      } else {
-        failure(err.message);
-      }
-    });
-}
 
 export function startServer() {
   const settings = vscode.workspace.getConfiguration("grafana-vscode");
@@ -64,6 +39,12 @@ export function startServer() {
     proxy.ws(req, socket, head, {});
   });
 
+  const sendErrorPage = (res: express.Response, message: string) => {
+    let content = fs.readFileSync("public/error.html", "utf-8");
+    content = content.replaceAll("${error}", message);
+    res.write(content);
+  };
+
   /*
    * Note, this method avoids using `proxy.web`, implementing its own proxy
    * event using Axios. This is because Grafana returns `X-Frame-Options: deny`
@@ -74,6 +55,11 @@ export function startServer() {
    * This security protection does not apply to this situation - given we own
    * both the connection to the backend as well as the webview. Therefore
    * it is reasonable remove this header in this context.
+   * 
+   * This method also doubles as connection verification. If an issue is
+   * encountered connecting to Grafana, rather than reporting an HTTP error,
+   * it returns an alternate HTML page to the user explaining the error, and
+   * offering a "refresh" option.
    */
   app.get("/d/:uid/:slug", async function (req, res) {
     try {
@@ -87,10 +73,15 @@ export function startServer() {
       res.write(resp.data);
     } catch (e) {
       if (axios.isAxiosError(e)) {
-        res.write(e.message);
+        if (e.response?.status === 302) {
+          sendErrorPage(res, "Authentication error");
+        } else {
+          sendErrorPage(res, e.message);
+        }
+      } else if (e instanceof Error) {
+        sendErrorPage(res, e.message);
       } else {
-        // Edge case: the error might not have the `message` property, so we write the error object
-        res.write(JSON.stringify(e));
+        sendErrorPage(res, String(e));
       }
     }
   });
@@ -225,13 +216,18 @@ export function startServer() {
     });
   }
 
-  server.listen(0, () => {
+  server.listen(port, () => {
     //@ts-expect-error
     port = server?.address()?.port;
     console.log("Server started");
   });
 }
 
+export function restartServer() {
+  console.log("Restarting server");
+  stopServer();
+  startServer();
+}
 export function stopServer() {
   if (server) {
     server.close();
