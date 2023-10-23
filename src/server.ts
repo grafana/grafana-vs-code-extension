@@ -110,6 +110,7 @@ export function startServer() {
           meta: {
             isStarred: false,
             folderId: 0,
+            folderUid: "",
             url: `/d/${dash.uid}/slug`,
           },
         };
@@ -196,6 +197,7 @@ export function startServer() {
       data: { groups: [] },
     },
     "/avatar/*": "",
+    "/api/folders": [],
     /* eslint-enable @typescript-eslint/naming-convention */
   };
   for (const path in blockJSONget) {
@@ -208,6 +210,7 @@ export function startServer() {
     /* eslint-disable @typescript-eslint/naming-convention */
     "/api/frontend-metrics": [],
     "/api/search-v2": [],
+    "/api/live/publish": {},
     /* eslint-enable @typescript-eslint/naming-convention */
   };
   for (const path in blockJSONpost) {
