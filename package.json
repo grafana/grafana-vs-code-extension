@@ -13,7 +13,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onWebviewPanel:grafana.dashboard"
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -61,17 +61,14 @@
         "grafana-vscode.URL": {
           "type": "string",
           "default": "http://localhost:3000",
-          "description": "Grafana instance URL"
+          "description": "Grafana instance URL",
+          "order": 1
         },
-        "grafana-vscode.token": {
-          "type": "string",
-          "default": "",
-          "description": "A Service Account token"
-        },
-        "grafana-vscode.message": {
+        "grafana-vscode.service-account-token": {
           "type": "boolean",
-          "default": "true",
-          "description": "Show popup message when dashboard JSON is detected"
+          "default": true,
+          "markdownDescription": "A service account token for your Grafana instance. Click the link below to add this to secure storage.\n\n[Set your token, securely](command:grafana-vscode.setPassword)",
+          "order":2
         }
       }
     }

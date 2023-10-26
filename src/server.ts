@@ -13,14 +13,16 @@ let server: Server;
 
 let userAgent: string;
 
+export const TOKEN_SECRET = "grafana-vscode.token";
+
 export function setVersion(version: string) {
   userAgent = `Grafana VSCode Extension/v${version}`;
 }
 
-export function startServer() {
+export async function startServer(secrets: vscode.SecretStorage) {
   const settings = vscode.workspace.getConfiguration("grafana-vscode");
   const URL = String(settings.get("URL"));
-  const token = String(settings.get("token"));
+  const token = String(await secrets.get(TOKEN_SECRET));
 
   const corsOptions = {
     origin: `http://localhost:${port}`,
@@ -236,10 +238,10 @@ export function startServer() {
   });
 }
 
-export function restartServer() {
+export function restartServer(secrets: vscode.SecretStorage) {
   console.log("Restarting server");
   stopServer();
-  startServer();
+  startServer(secrets);
 }
 export function stopServer() {
   if (server) {
