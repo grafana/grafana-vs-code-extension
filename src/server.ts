@@ -11,6 +11,12 @@ export let port = 0;
 
 let server: Server;
 
+let userAgent: string;
+
+export function setVersion(version: string) {
+  userAgent = `Grafana VSCode Extension/v${version}`;
+}
+
 export function startServer() {
   const settings = vscode.workspace.getConfiguration("grafana-vscode");
   const URL = String(settings.get("URL"));
@@ -32,9 +38,14 @@ export function startServer() {
     headers: {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       Authorization: `Bearer ${token}`,
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'User-Agent': userAgent,
     },
   });
 
+  //proxy.on('proxyReq', (proxyRes, req, res) => {
+    // modifying headers goes here
+  //});
   server.on("upgrade", function (req, socket, head) {
     proxy.ws(req, socket, head, {});
   });
@@ -68,6 +79,8 @@ export function startServer() {
         headers: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           Authorization: `Bearer ${token}`,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          'User-Agent': userAgent,
         },
       });
       res.write(resp.data);
