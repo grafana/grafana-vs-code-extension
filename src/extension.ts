@@ -35,9 +35,9 @@ export async function activate(ctx: vscode.ExtensionContext) {
   });
 
   vscode.commands.registerCommand('grafana-vscode.setPassword', async () => {
-    const passwordInput: string = await vscode.window.showInputBox({
+    const passwordInput = await vscode.window.showInputBox({
       password: true,
-      placeHolder: "my Grafana service account token",
+      placeHolder: "My Grafana service account token",
       title: "Enter the service account token for your Grafana instance. This value will be stored securely in your operating system's secure key store."
     }) ?? '';
     await ctx.secrets.store(TOKEN_SECRET, passwordInput);

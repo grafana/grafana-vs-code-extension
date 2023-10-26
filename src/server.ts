@@ -23,7 +23,7 @@ export function setVersion(version: string) {
 export async function startServer(secrets: vscode.SecretStorage, extensionPath: string) {
   const settings = vscode.workspace.getConfiguration("grafana-vscode");
   const URL = String(settings.get("URL"));
-  const token = String(await secrets.get(TOKEN_SECRET));
+  const token = await secrets.get(TOKEN_SECRET);
 
   const corsOptions = {
     origin: `http://localhost:${port}`,
@@ -51,8 +51,8 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
   });
 
   const sendErrorPage = (res: express.Response, message: string) => {
-    const errorfile = path.join(extensionPath, "public/error.html");
-    let content = fs.readFileSync(errorfile, "utf-8");
+    const errorFile = path.join(extensionPath, "public/error.html");
+    let content = fs.readFileSync(errorFile, "utf-8");
     content = content.replaceAll("${error}", message);
     res.write(content);
   };
