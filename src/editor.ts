@@ -42,7 +42,6 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
       enableScripts: true,
     };
 
-    webviewPanel.onDidChangeViewState((e) => {});
     webviewPanel.webview.html = this.getHtmlForWebview(document);
   }
 

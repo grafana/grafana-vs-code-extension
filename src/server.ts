@@ -6,6 +6,7 @@ import * as vscode from "vscode";
 import * as cors from "cors";
 import { detectRequestSource } from "./middleware";
 import axios from "axios";
+import * as path from "path";
 
 export let port = 0;
 
@@ -13,14 +14,16 @@ let server: Server;
 
 let userAgent: string;
 
+export const TOKEN_SECRET = "grafana-vscode.token";
+
 export function setVersion(version: string) {
   userAgent = `Grafana VSCode Extension/v${version}`;
 }
 
-export function startServer() {
+export async function startServer(secrets: vscode.SecretStorage, extensionPath: string) {
   const settings = vscode.workspace.getConfiguration("grafana-vscode");
   const URL = String(settings.get("URL"));
-  const token = String(settings.get("token"));
+  const token = await secrets.get(TOKEN_SECRET);
 
   const corsOptions = {
     origin: `http://localhost:${port}`,
@@ -48,7 +51,8 @@ export function startServer() {
   });
 
   const sendErrorPage = (res: express.Response, message: string) => {
-    let content = fs.readFileSync("public/error.html", "utf-8");
+    const errorFile = path.join(extensionPath, "public/error.html");
+    let content = fs.readFileSync(errorFile, "utf-8");
     content = content.replaceAll("${error}", message);
     res.write(content);
   };
@@ -236,10 +240,10 @@ export function startServer() {
   });
 }
 
-export function restartServer() {
+export function restartServer(secrets: vscode.SecretStorage, extensionPath: string) {
   console.log("Restarting server");
   stopServer();
-  startServer();
+  startServer(secrets, extensionPath);
 }
 export function stopServer() {
   if (server) {
