@@ -10,7 +10,7 @@ import { install as installSourceMapSupport } from 'source-map-support';
 export async function activate(ctx: vscode.ExtensionContext) {
 
   setVersion(ctx.extension.packageJSON.version);
-  startServer(ctx.secrets);
+  startServer(ctx.secrets, ctx.extensionPath);
 
   ctx.subscriptions.push(GrafanaEditorProvider.register(ctx));
 
@@ -28,28 +28,21 @@ export async function activate(ctx: vscode.ExtensionContext) {
       }),
   );
 
-  vscode.workspace.onDidChangeConfiguration(event => {
-    if (event.affectsConfiguration("grafana-vscode.URL")
-      || event.affectsConfiguration("grafana-vscode.token")) {
-      restartServer(ctx.secrets);
+  vscode.workspace.onDidChangeConfiguration(async(event) => {
+    if (event.affectsConfiguration("grafana-vscode.URL")) {
+      restartServer(ctx.secrets, ctx.extensionPath);
     }
   });
 
-    vscode.commands.registerCommand('grafana-vscode.setPassword', async () => {
-        const passwordInput: string = await vscode.window.showInputBox({
-          password: true,
-          placeHolder: "my Grafana service account token",
-        title: "Enter the service account token for your Grafana instance. This value will be stored securely in your operating system's secure key store."
-        }) ?? '';
-        await ctx.secrets.store(TOKEN_SECRET, passwordInput);
-        restartServer(ctx.secrets);
-      });
-
-      vscode.workspace.onDidChangeConfiguration(async(event) =>  {
-        if (event.affectsConfiguration("grafana-vscode.URL")) {
-            restartServer(ctx.secrets);
-        }
-      });
+  vscode.commands.registerCommand('grafana-vscode.setPassword', async () => {
+    const passwordInput: string = await vscode.window.showInputBox({
+      password: true,
+      placeHolder: "my Grafana service account token",
+      title: "Enter the service account token for your Grafana instance. This value will be stored securely in your operating system's secure key store."
+    }) ?? '';
+    await ctx.secrets.store(TOKEN_SECRET, passwordInput);
+    restartServer(ctx.secrets, ctx.extensionPath);
+  });
 
   installSourceMapSupport();
 }
