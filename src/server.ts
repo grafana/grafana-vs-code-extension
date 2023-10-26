@@ -43,9 +43,6 @@ export function startServer() {
     },
   });
 
-  //proxy.on('proxyReq', (proxyRes, req, res) => {
-    // modifying headers goes here
-  //});
   server.on("upgrade", function (req, socket, head) {
     proxy.ws(req, socket, head, {});
   });
