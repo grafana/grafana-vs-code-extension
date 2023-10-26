@@ -86,16 +86,23 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
       });
       res.write(resp.data);
     } catch (e) {
-      if (axios.isAxiosError(e)) {
+    let msg = "";
+    if (URL === "") {
+      msg += "<p><b>Error:</b> URL is not defined</p>";
+    }
+    if (token === "") {
+      msg += "<p><b>Warning:</b> No service account token specified.</p>";
+    }
+    if (axios.isAxiosError(e)) {
         if (e.response?.status === 302) {
-          sendErrorPage(res, "Authentication error");
+          sendErrorPage(res, msg+ "<p>Authentication error</p>");
         } else {
-          sendErrorPage(res, e.message);
+          sendErrorPage(res, msg + `<p>${e.message}</p>`);
         }
       } else if (e instanceof Error) {
-        sendErrorPage(res, e.message);
+        sendErrorPage(res, msg + `<p>${e.message}</p>`);
       } else {
-        sendErrorPage(res, String(e));
+        sendErrorPage(res, msg + "<p>" + String(e) + "</p>");
       }
     }
   });
