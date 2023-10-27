@@ -1,8 +1,8 @@
 {
   "name": "grafana-vscode",
   "author": "Grafana Labs",
-  "displayName": "Grafana Dashboard Editor",
-  "description": "Grafana Dashboard Editor",
+  "displayName": "Grafana",
+  "description": "Grafana Editor",
   "version": "0.0.5",
   "license": "Apache-2.0",
   "repository": "github:grafana/grafana-vs-code-extension",
@@ -56,7 +56,7 @@
       }
     ],
     "configuration": {
-      "title": "Grafana VS Code Extension",
+      "title": "Grafana",
       "properties": {
         "grafana-vscode.URL": {
           "type": "string",
