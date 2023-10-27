@@ -1,7 +1,7 @@
 {
     "iconDefinitions": {
         "grafana": {
-          "iconPath": "./grafana_icon.svg"
+          "iconPath": "./grafana_icon.png"
         }
     },
     "fileExtensions": {
