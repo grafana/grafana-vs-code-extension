@@ -7,3 +7,12 @@ export function getNonce() {
   }
   return text;
 }
+
+let userAgent: string;
+export function setVersion(version: string) {
+  userAgent = `Grafana VSCode Extension/v${version}`;
+}
+
+export function getUserAgent(): string {
+  return userAgent;
+}

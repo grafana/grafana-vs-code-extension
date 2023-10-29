@@ -1,9 +1,11 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { setVersion, startServer, restartServer, stopServer, TOKEN_SECRET } from "./server";
+import { startServer, restartServer, stopServer, TOKEN_SECRET } from "./server";
 import { GrafanaEditorProvider } from "./editor";
 import { install as installSourceMapSupport } from 'source-map-support';
+import { sendTelemetry } from "./telemetry";
+import { setVersion } from "./util";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -18,6 +20,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "grafana-vscode.openUrl",
       (uri: vscode.Uri) => {
+        sendTelemetry(ctx);
         vscode.commands.executeCommand(
           "vscode.openWith",
           uri,
