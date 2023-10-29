@@ -1,62 +1,23 @@
 import * as express from "express";
-import { Server, createServer } from "http";
-import { createProxyServer } from "http-proxy";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import * as cors from "cors";
-import { detectRequestSource } from "./middleware";
 import axios from "axios";
 import * as path from "path";
 
-export let port = 0;
-
-let server: Server;
-
-let userAgent: string;
-
-export const TOKEN_SECRET = "grafana-vscode.token";
-
-export function setVersion(version: string) {
-  userAgent = `Grafana VSCode Extension/v${version}`;
-}
-
-export async function startServer(secrets: vscode.SecretStorage, extensionPath: string) {
-  const settings = vscode.workspace.getConfiguration("grafana-vscode");
-  const URL = String(settings.get("URL"));
-  const token = await secrets.get(TOKEN_SECRET);
-
-  const corsOptions = {
-    origin: `http://localhost:${port}`,
-    optionsSuccessStatus: 200,
-  };
-
-  const app = express();
-  app.use(detectRequestSource);
-  server = createServer(app);
-
-  const proxy = createProxyServer({
-    target: URL,
-    changeOrigin: !URL.includes("localhost"),
-    ws: true,
-    headers: {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      Authorization: `Bearer ${token}`,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      'User-Agent': userAgent,
-    },
-  });
-
-  server.on("upgrade", function (req, socket, head) {
-    proxy.ws(req, socket, head, {});
-  });
+export function addEndpoints(url: string,
+                      token: string | undefined,
+                      corsOptions: cors.CorsOptions,
+                      app: express.Express,
+                      proxy: any,
+                      ctx: vscode.ExtensionContext) {
 
   const sendErrorPage = (res: express.Response, message: string) => {
-    const errorFile = path.join(extensionPath, "public/error.html");
+    const errorFile = path.join(ctx.extensionPath, "public/error.html");
     let content = fs.readFileSync(errorFile, "utf-8");
     content = content.replaceAll("${error}", message);
     res.write(content);
-  };
-
+    };
   /*
    * Note, this method avoids using `proxy.web`, implementing its own proxy
    * event using Axios. This is because Grafana returns `X-Frame-Options: deny`
@@ -75,19 +36,19 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
    */
   app.get("/d/:uid/:slug", async function (req, res) {
     try {
-      const resp = await axios.get(URL + req.url, {
+      const resp = await axios.get(url + req.url, {
         maxRedirects: 0,
         headers: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           Authorization: `Bearer ${token}`,
           // eslint-disable-next-line @typescript-eslint/naming-convention
-          'User-Agent': userAgent,
+          'User-Agent': ctx.globalState.get("userAgent"),
         },
       });
       res.write(resp.data);
     } catch (e) {
     let msg = "";
-    if (URL === "") {
+    if (url === "") {
       msg += "<p><b>Error:</b> URL is not defined</p>";
     }
     if (token === "") {
@@ -238,22 +199,5 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     app.post(path, function (req, res) {
       res.send(blockJSONpost[path]);
     });
-  }
-
-  server.listen(port, () => {
-    //@ts-expect-error
-    port = server?.address()?.port;
-    console.log("Server started");
-  });
-}
-
-export function restartServer(secrets: vscode.SecretStorage, extensionPath: string) {
-  console.log("Restarting server");
-  stopServer();
-  startServer(secrets, extensionPath);
-}
-export function stopServer() {
-  if (server) {
-    server.close();
   }
 }

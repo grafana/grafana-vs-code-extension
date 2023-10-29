@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
-import { port } from "./server";
+import { port } from "./server/server";
 
 export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
   static webviewContent = "";

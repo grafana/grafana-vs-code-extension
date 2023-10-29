@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { setVersion, startServer, restartServer, stopServer, TOKEN_SECRET } from "./server";
+import { setVersion, startServer, restartServer, stopServer, TOKEN_SECRET } from "./server/server";
 import { GrafanaEditorProvider } from "./editor";
 import { install as installSourceMapSupport } from 'source-map-support';
 
@@ -10,7 +10,7 @@ import { install as installSourceMapSupport } from 'source-map-support';
 export async function activate(ctx: vscode.ExtensionContext) {
 
   setVersion(ctx.extension.packageJSON.version);
-  startServer(ctx.secrets, ctx.extensionPath);
+  startServer(ctx);
 
   ctx.subscriptions.push(GrafanaEditorProvider.register(ctx));
 
@@ -30,7 +30,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
 
   vscode.workspace.onDidChangeConfiguration(async(event) => {
     if (event.affectsConfiguration("grafana-vscode.URL")) {
-      restartServer(ctx.secrets, ctx.extensionPath);
+      restartServer(ctx);
     }
   });
 
@@ -41,7 +41,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
       title: "Enter the service account token for your Grafana instance. This value will be stored securely in your operating system's secure key store."
     }) ?? '';
     await ctx.secrets.store(TOKEN_SECRET, passwordInput);
-    restartServer(ctx.secrets, ctx.extensionPath);
+    restartServer(ctx);
   });
 
   installSourceMapSupport();
