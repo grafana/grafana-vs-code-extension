@@ -18,6 +18,52 @@ export function addEndpoints(url: string,
     content = content.replaceAll("${error}", message);
     res.write(content);
     };
+
+  type RuleSet = {
+    name: string,
+    rules: [
+      {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        grafana_alert: {
+          uid: string,
+          title: string,
+        },
+      },
+    ],
+  };
+  
+  app.get("/alert-overview",
+    express.json(),
+    cors(corsOptions),
+    (req: express.Request, res) =>{
+      const filename = req.query.filename as string;
+      if (filename === undefined) {
+        console.log("Filename not specified in referer");
+        res.sendStatus(500);
+        return;
+      }
+      try {
+      fs.readFile(filename, "utf-8", (err, data) => {
+        if (err) {
+          console.error("Error reading file:", err);
+          res.sendStatus(500);
+          return;
+        }
+        const rules = JSON.parse(data) as RuleSet;
+        let html = `<style>body, a {color: white;}</style><h1>Rule set: ${rules.name}</h1><ul>`;
+        for (const rule of rules.rules) {
+          html += `<li><a href="/alerting/${rule.grafana_alert.uid}/edit?filename=${filename}&returnTo=/alert-overview%3Ffilename=${filename}">${rule.grafana_alert.title}: /alerting/${rule.grafana_alert.uid}/edit?filename=${filename}&returnTo=/alert-overview%3Ffilename=${filename}</li>`;
+          console.log("URL:", `/alerting/${rule.grafana_alert.uid}/edit?returnTo=/alert-overview%3Ffilename=${filename}`);
+        }
+        html += "</ul>";
+        console.log("WRITING HTML");
+        res.write(html);
+      });
+    } catch (e) {
+      console.log("ERROR READING FILE:", e);
+    }
+    });
+
   /*
    * Note, this method avoids using `proxy.web`, implementing its own proxy
    * event using Axios. This is because Grafana returns `X-Frame-Options: deny`
@@ -34,8 +80,9 @@ export function addEndpoints(url: string,
    * it returns an alternate HTML page to the user explaining the error, and
    * offering a "refresh" option.
    */
-  app.get("/d/:uid/:slug", async function (req, res) {
+  app.get("/alerting/([^/]+)/edit", async function (req, res) {
     try {
+      console.log("FORWARDING TO", url + req.url);
       const resp = await axios.get(url + req.url, {
         maxRedirects: 0,
         headers: {
@@ -45,16 +92,18 @@ export function addEndpoints(url: string,
           'User-Agent': ctx.globalState.get("userAgent"),
         },
       });
-      res.write(resp.data);
+      console.log(resp);
+      console.log("PROXY RESPONSE:", resp.data);
+      res.write(resp.data as string);
     } catch (e) {
-    let msg = "";
-    if (url === "") {
-      msg += "<p><b>Error:</b> URL is not defined</p>";
-    }
-    if (token === "") {
-      msg += "<p><b>Warning:</b> No service account token specified.</p>";
-    }
-    if (axios.isAxiosError(e)) {
+      let msg = "";
+      if (url === "") {
+        msg += "<p><b>Error:</b> URL is not defined</p>";
+      }
+      if (token === "") {
+        msg += "<p><b>Warning:</b> No service account token specified.</p>";
+      }
+      if (axios.isAxiosError(e)) {
         if (e.response?.status === 302) {
           sendErrorPage(res, msg+ "<p>Authentication error</p>");
         } else {
@@ -103,7 +152,7 @@ export function addEndpoints(url: string,
   );
 
   app.post(
-    "/api/dashboards/db/",
+    "/api/xxdashboards/db/",
     express.json(),
     cors(corsOptions),
     (req, res) => {
@@ -133,26 +182,8 @@ export function addEndpoints(url: string,
       });
     },
   );
-
-  app.get(
-    "/api/access-control/user/actions",
-    express.json(),
-    cors(corsOptions),
-    (req, res) => {
-      res.send({
-        /* eslint-disable-next-line @typescript-eslint/naming-convention */
-        "dashboards:write": true,
-        "alert.rules:read": true,
-        "alert.rules:write": true,
-      });
-      return;
-    },
-  );
-
   const mustProxyGET = [
-    "/public/*",
-    "/api/datasources/proxy/*",
-    "/api/datasources/*",
+    "xx0"
   ];
   for (const path of mustProxyGET) {
     app.get(path, function (req, res) {
@@ -160,7 +191,7 @@ export function addEndpoints(url: string,
     });
   }
 
-  const mustProxyPOST = ["/api/ds/query"];
+  const mustProxyPOST = ["xx1"];
   for (const path of mustProxyPOST) {
     app.post(path, function (req, res) {
       proxy.web(req, res, {});
@@ -169,19 +200,7 @@ export function addEndpoints(url: string,
 
   const blockJSONget: { [name: string]: any } = {
     /* eslint-disable @typescript-eslint/naming-convention */
-    "/api/ma/events": [],
-    "/api/live/publish": [],
-    "/api/live/list": [],
-    "/api/user/orgs": [],
-    "/api/annotations": [],
-    "/api/search": [],
-    "/api/usage/*": [],
-    "/api/prometheus/grafana/api/v1/rules": {
-      status: "success",
-      data: { groups: [] },
-    },
-    "/avatar/*": "",
-    "/api/folders": [],
+    "/xx2": [],
     /* eslint-enable @typescript-eslint/naming-convention */
   };
   for (const path in blockJSONget) {
@@ -192,9 +211,7 @@ export function addEndpoints(url: string,
 
   const blockJSONpost: { [name: string]: any } = {
     /* eslint-disable @typescript-eslint/naming-convention */
-    "/api/frontend-metrics": [],
-    "/api/search-v2": [],
-    "/api/live/publish": {},
+    "/xx3": [],
     /* eslint-enable @typescript-eslint/naming-convention */
   };
   for (const path in blockJSONpost) {

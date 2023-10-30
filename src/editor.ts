@@ -4,7 +4,7 @@ import { port } from "./server/server";
 
 export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
   static webviewContent = "";
-  static webviewErrorContent = "";
+  static webviewRuleContent = "";
 
   static readonly viewType = "grafana.dashboard";
 
@@ -24,7 +24,11 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
       "utf-8",
     );
     this.webviewContent = this.webviewContent.replaceAll("${editor}", "VSCode");
-
+    this.webviewRuleContent = fs.readFileSync(
+      context.asAbsolutePath("public/alert-webview.html"),
+      "utf-8",
+    );
+    this.webviewRuleContent = this.webviewRuleContent.replaceAll("${editor}", "VSCode");
     return providerRegistration;
   }
 
@@ -42,7 +46,24 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
       enableScripts: true,
     };
 
-    webviewPanel.webview.html = this.getHtmlForWebview(document);
+    try {
+      const j = JSON.parse(document.getText()) as Map<string, any>;
+
+      if (j.hasOwnProperty("schemaVersion")) {
+        console.log("IS DASHBOARD!");
+        webviewPanel.webview.html = this.getHtmlForWebview(document);
+      } else if (j.hasOwnProperty("rules")) {
+        console.log("IS RULE!");
+        webviewPanel.webview.html = this.getRuleHtmlForWebview(document);
+      }
+
+    } catch(e) {
+      if (e instanceof SyntaxError) {
+        webviewPanel.webview.html = `<h1>Invalid JSON</h1><p>${e}</p>`;
+      } else {
+        webviewPanel.webview.html = `<h1>Error parsing json</h1><p>${e}</p>`;
+      }
+    }
   }
 
   /**
@@ -57,6 +78,22 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
     );
     view = view.replaceAll("${port}", port.toString());
     view = view.replaceAll("${uid}", uid);
+    return view;
+  }
+
+  /**
+   * Get the static html used for the editor webviews.
+   */
+  private getRuleHtmlForWebview(document: vscode.TextDocument): string {
+    const rules = JSON.parse(document.getText());
+    const uid: string = rules.name;
+    let view = GrafanaEditorProvider.webviewRuleContent.replaceAll(
+      "${filename}",
+      document.uri.fsPath,
+    );
+    view = view.replaceAll("${port}", port.toString());
+    view = view.replaceAll("${uid}", uid);
+    console.log("RULE HTML", view);
     return view;
   }
 }

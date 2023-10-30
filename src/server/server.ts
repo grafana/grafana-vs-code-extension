@@ -4,6 +4,7 @@ import { createProxyServer } from "http-proxy";
 import * as vscode from "vscode";
 import { detectRequestSource } from "./middleware";
 import * as dashboard from "./dashboard";
+import * as alert from "./alert";
 
 export let port = 0;
 
@@ -48,6 +49,7 @@ export async function startServer(ctx: vscode.ExtensionContext) {
   });
 
   dashboard.addEndpoints(url, token, corsOptions, app, proxy, ctx);
+  alert.addEndpoints(url, token, corsOptions, app, proxy, ctx);
 
   server.listen(port, () => {
     //@ts-expect-error
