@@ -3,7 +3,7 @@
   "author": "Grafana Labs",
   "displayName": "Grafana",
   "description": "Grafana Editor",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "license": "Apache-2.0",
   "repository": "github:grafana/grafana-vs-code-extension",
   "engines": {
