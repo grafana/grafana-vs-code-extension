@@ -11,9 +11,7 @@ const URL = "https://grafana.com/api/vscode-extension?event=${event}";
  */
 export async function sendTelemetry(ctx: vscode.ExtensionContext) {
 
-    const lastUpdatedDate = ctx.globalState.get<Date | undefined>(
-    LAST_UPDATED_DATE,
-  );
+    const lastUpdatedDate = ctx.globalState.get<Date | undefined>(LAST_UPDATED_DATE);
 
     const today = new Date();
     if (lastUpdatedDate === undefined) {
@@ -21,7 +19,7 @@ export async function sendTelemetry(ctx: vscode.ExtensionContext) {
         ctx.globalState.update(LAST_UPDATED_DATE, today);
 
     } else {
-        if (monthDiff(today, lastUpdatedDate)>0) {
+        if (monthDiff(today, lastUpdatedDate)>=0) {
             await sendEvent("subsequent");
             ctx.globalState.update(LAST_UPDATED_DATE, today);
         }
@@ -45,7 +43,12 @@ async function sendEvent(eventType: string) {
                 'User-Agent': util.getUserAgent(),
             },
         });
+        console.log(eventType, "event sent");
     } catch(e) {
-        console.log("Telemetry error", e);
+        if (axios.isAxiosError(e) && e.response?.status === 404) {
+            console.log(eventType, "event sent");
+        } else {
+            console.log("Telemetry error", e, "for event", eventType);
+        }
     }
 }
