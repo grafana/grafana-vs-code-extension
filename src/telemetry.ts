@@ -11,7 +11,9 @@ const URL = "https://grafana.com/api/vscode-extension?event=${event}";
  */
 export async function sendTelemetry(ctx: vscode.ExtensionContext) {
 
-    const lastUpdatedDate = (ctx.globalState.get(LAST_UPDATED_DATE) as Date);
+    const lastUpdatedDate = ctx.globalState.get<Date | undefined>(
+    LAST_UPDATED_DATE,
+  );
 
     const today = new Date();
     if (lastUpdatedDate === undefined) {
