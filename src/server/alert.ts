@@ -52,11 +52,9 @@ export function addEndpoints(url: string,
         const rules = JSON.parse(data) as RuleSet;
         let html = `<style>body, a {color: white;}</style><h1>Rule set: ${rules.name}</h1><ul>`;
         for (const rule of rules.rules) {
-          html += `<li><a href="/alerting/${rule.grafana_alert.uid}/edit?filename=${filename}&returnTo=/alert-overview%3Ffilename=${filename}">${rule.grafana_alert.title}: /alerting/${rule.grafana_alert.uid}/edit?filename=${filename}&returnTo=/alert-overview%3Ffilename=${filename}</li>`;
-          console.log("URL:", `/alerting/${rule.grafana_alert.uid}/edit?returnTo=/alert-overview%3Ffilename=${filename}`);
+          html += `<li><a href="/alerting/${rule.grafana_alert.uid}/edit?filename=${filename}&returnTo=/alert-overview%3Ffilename=${filename}">${rule.grafana_alert.title} (${rule.grafana_alert.uid})</li>`;
         }
         html += "</ul>";
-        console.log("WRITING HTML");
         res.write(html);
       });
     } catch (e) {
@@ -82,7 +80,6 @@ export function addEndpoints(url: string,
    */
   app.get("/alerting/([^/]+)/edit", async function (req, res) {
     try {
-      console.log("FORWARDING TO", url + req.url);
       const resp = await axios.get(url + req.url, {
         maxRedirects: 0,
         headers: {
@@ -92,8 +89,7 @@ export function addEndpoints(url: string,
           'User-Agent': ctx.globalState.get("userAgent"),
         },
       });
-      console.log(resp);
-      console.log("PROXY RESPONSE:", resp.data);
+      console.log("USER AGENT:", ctx.globalState.get("userAgent"));
       res.write(resp.data as string);
     } catch (e) {
       let msg = "";
@@ -117,14 +113,25 @@ export function addEndpoints(url: string,
     }
   });
 
+  function getReferer(url: string|undefined):string {
+    let paramstr = url?.split("?")[1] as string;
+    let params = paramstr?.split("&");
+    let filename = "";
+    for (let param of params) {
+      if (param.startsWith("filename=")) {
+        return param.replace("filename=", "");
+      }
+    }
+    return "";
+  };
+
   app.get(
-    "/api/dashboards/uid/:uid",
+    "/api/ruler/grafana/api/v1/rules",
     express.json(),
     cors(corsOptions),
     (req, res) => {
-      const refererParams = new URLSearchParams(req.headers.referer);
-      const filename = refererParams.get("filename");
-      if (filename === null) {
+      const filename = getReferer(req.headers.referer);
+      if (filename === "") {
         console.log("Filename not specified in referer");
         res.sendStatus(500);
         return;
@@ -135,33 +142,24 @@ export function addEndpoints(url: string,
           res.sendStatus(500);
           return;
         }
-        const dash: any = JSON.parse(data);
-        const wrapper = {
-          dashboard: dash,
-          meta: {
-            isStarred: false,
-            folderId: 0,
-            folderUid: "",
-            url: `/d/${dash.uid}/slug`,
-          },
-        };
-
-        res.send(wrapper);
+        res.send({"test-alert-folder": [JSON.parse(data)]});
       });
     },
   );
 
   app.post(
-    "/api/xxdashboards/db/",
+    "/api/ruler/grafana/api/v1/rules/:folder",
     express.json(),
     cors(corsOptions),
     (req, res) => {
-      const refererParams = new URLSearchParams(req.headers.referer);
-      const filename = refererParams.get("filename");
+      const filename = getReferer(req.headers.referer);
       if (!filename) {
+        console.log("Filename not specified in referer");
         res.send(500);
         return;
       }
+      res.send({"message":"rule group updated successfully"});
+      return;
       const uid = req.headers.referer?.split("/")[4];
       const jsonData = JSON.stringify(req.body.dashboard, null, 2);
 
@@ -170,18 +168,48 @@ export function addEndpoints(url: string,
           console.error("Error writing file:", err);
           res.sendStatus(500);
         } else {
-          res.send({
-            id: 1,
-            slug: "slug",
-            status: "success",
-            uid: uid,
-            url: `/d/${uid}/slug`,
-            version: 1,
-          });
+          res.send({"message":"rule group updated successfully"});
         }
       });
     },
   );
+
+  app.get('/api/folders/:uid',
+    cors(corsOptions),
+    (req, res) => {
+      res.send({
+        /* eslint-disable @typescript-eslint/naming-convention */
+        "id": 1,
+        "uid": req.params.uid,
+        "title": "folder",
+        "url": `/dashboards/f/${req.params.uid}/folder`,
+        "hasAcl": false,
+        "canSave": true,
+        "canEdit": true,
+        "canAdmin": false,
+        "canDelete": true,
+        "version": 1,
+        "accessControl": {
+            "alert.rules:create": true,
+            "alert.rules:delete": true,
+            "alert.rules:read": true,
+            "alert.rules:write": true,
+            "dashboards.permissions:read": true,
+            "dashboards.permissions:write": true,
+            "dashboards:create": true,
+            "dashboards:delete": true,
+            "dashboards:read": true,
+            "dashboards:write": true,
+            "folders.permissions:read": true,
+            "folders.permissions:write": true,
+            "folders:delete": true,
+            "folders:read": true,
+            "folders:write": true
+        }
+        /* eslint-enable @typescript-eslint/naming-convention */
+    });
+  });
+
   const mustProxyGET = [
     "xx0"
   ];
@@ -200,7 +228,8 @@ export function addEndpoints(url: string,
 
   const blockJSONget: { [name: string]: any } = {
     /* eslint-disable @typescript-eslint/naming-convention */
-    "/xx2": [],
+    "/api/v1/ngalert": {"alertmanagersChoice":"internal","numExternalAlertmanagers":0},
+    "/api/v1/ngalert/alertmanagers": {"status":"success","data":{"activeAlertManagers":[],"droppedAlertManagers":[]}},
     /* eslint-enable @typescript-eslint/naming-convention */
   };
   for (const path in blockJSONget) {

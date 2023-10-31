@@ -50,10 +50,8 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
       const j = JSON.parse(document.getText()) as Map<string, any>;
 
       if (j.hasOwnProperty("schemaVersion")) {
-        console.log("IS DASHBOARD!");
         webviewPanel.webview.html = this.getHtmlForWebview(document);
       } else if (j.hasOwnProperty("rules")) {
-        console.log("IS RULE!");
         webviewPanel.webview.html = this.getRuleHtmlForWebview(document);
       }
 
@@ -93,7 +91,6 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
     );
     view = view.replaceAll("${port}", port.toString());
     view = view.replaceAll("${uid}", uid);
-    console.log("RULE HTML", view);
     return view;
   }
 }

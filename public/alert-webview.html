@@ -1,12 +1,8 @@
 <html style="height: 100%;">
 <body style="height: 100%;">
 
-<!--  <iframe frameborder="0" id="grafana-frame"
-        src="/alerting/a6747b67-8cc3-4ae5-be68-5177f94d2d02/edit?filename=/home/malcolm/grafana/grafana-vs-code-extension/examples/alert-rules.json&returnTo=/alert-overview%3Ffilename=/home/malcolm/grafana/grafana-vs-code-extension/examples/alert-rules.json"
-        sandbox="allow-same-origin allow-scripts allow-popups allow-forms" width="100%" height="100%"></iframe>
--->
-        <iframe frameborder="0" id="grafana-frame"
-        src="http://localhost:${port}/alert-overview?serverPort=${port}&filename=${filename}&editor=${editor}"
+    <iframe frameborder="0" id="grafana-frame"
+             src="http://localhost:${port}/alert-overview?serverPort=${port}&filename=${filename}&editor=${editor}"
         sandbox="allow-same-origin allow-scripts allow-popups allow-forms" width="100%" height="100%"></iframe>
 </body>
 </html>
