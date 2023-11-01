@@ -77,7 +77,7 @@
           "type": "boolean",
           "default": true,
           "markdownDescription": "A service account token for your Grafana instance. Click the link below to add this to secure storage.\n\n[Set your token, securely](command:grafana-vscode.setPassword)",
-          "order":2
+          "order": 2
         }
       }
     }
@@ -122,6 +122,7 @@
     "http-proxy-middleware": "^2.0.6",
     "open": "^8.4.2",
     "source-map-support": "^0.5.21",
-    "transformer-proxy": "^0.3.5"
+    "transformer-proxy": "^0.3.5",
+    "uuid": "^9.0.1"
   }
 }

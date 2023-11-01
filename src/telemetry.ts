@@ -1,9 +1,11 @@
 import * as vscode from "vscode";
 import axios from "axios";
+import {v4 as uuidv4} from 'uuid';
 import * as util from "./util";
 
 const LAST_UPDATED_DATE = "lastUpdatedDate";
-const URL = "https://grafana.com/api/vscode-extension?event=${event}";
+const INSTALLATION_UUID = "installUUID";
+const URL = "https://stats.grafana.org/vscode-extension";
 
 /*
  * Sends a single anonymous telemetry call once per month, allowing tracking of
@@ -11,44 +13,49 @@ const URL = "https://grafana.com/api/vscode-extension?event=${event}";
  */
 export async function sendTelemetry(ctx: vscode.ExtensionContext) {
 
-    const lastUpdatedDate = ctx.globalState.get<Date | undefined>(LAST_UPDATED_DATE);
-
+    const lastUpdatedDate = ctx.globalState.get<string | undefined>(LAST_UPDATED_DATE);
     const today = new Date();
-    if (lastUpdatedDate === undefined) {
-        await sendEvent("first");
-        ctx.globalState.update(LAST_UPDATED_DATE, today);
 
+    if (lastUpdatedDate === undefined) {
+        const uuid = uuidv4();
+        await sendEvent("first", uuid);
+        ctx.globalState.update(LAST_UPDATED_DATE, today);
+        ctx.globalState.update(INSTALLATION_UUID, uuid);
     } else {
-        if (monthDiff(today, lastUpdatedDate)>=0) {
-            await sendEvent("subsequent");
+        if (differentDay(new Date(lastUpdatedDate), today)) {
+            let uuid = ctx.globalState.get(INSTALLATION_UUID);
+            if (uuid === undefined) {
+                console.log("missing uuid");
+                return;
+            }
+            await sendEvent("subsequent", uuid as string);
             ctx.globalState.update(LAST_UPDATED_DATE, today);
         }
     }
 }
 
-function monthDiff(d1: Date, d2: Date) {
-    let months;
-    months = (d2.getFullYear() - d1.getFullYear()) * 12;
-    months -= d1.getMonth();
-    months += d2.getMonth();
-    return months <= 0 ? 0 : months;
+function differentDay(d1: Date, d2: Date) {
+    d1.getMonth() !== d2.getMonth() &&
+    d1.getFullYear() !== d2.getFullYear());
+    return d1.getDay() !== d2.getDay() &&
+           d1.getMonth() !== d2.getMonth() &&
+           d1.getFullYear() !== d2.getFullYear();
 }
 
-async function sendEvent(eventType: string) {
+async function sendEvent(eventType: string, uuid: String) {
     try {
-        const url = URL.replaceAll("${event}", eventType);
-        await axios.head(url, {
+        const data = {
+            uuid: uuid,
+            eventType: eventType,
+            extensionVersion: util.getVersion(),
+        };
+        await axios.post(URL, data, {
             headers: {
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 'User-Agent': util.getUserAgent(),
             },
         });
-        console.log(eventType, "event sent");
     } catch(e) {
-        if (axios.isAxiosError(e) && e.response?.status === 404) {
-            console.log(eventType, "event sent");
-        } else {
-            console.log("Telemetry error", e, "for event", eventType);
-        }
+        console.log("Telemetry error", e, "for event", eventType);
     }
 }
