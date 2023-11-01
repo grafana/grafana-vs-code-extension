@@ -35,8 +35,13 @@ export async function sendTelemetry(ctx: vscode.ExtensionContext) {
 }
 
 function differentDay(d1: Date, d2: Date) {
-    return d1.getDay() !== d2.getDay() &&
-           d1.getMonth() !== d2.getMonth() &&
+    console.log("d1", typeof d1, d1);
+    console.log("d2", typeof d2, d2);
+    console.log("diff", d1.getDay() !== d2.getDay() &&
+    d1.getMonth() !== d2.getMonth() &&
+    d1.getFullYear() !== d2.getFullYear());
+    return d1.getDate() !== d2.getDate() ||
+           d1.getMonth() !== d2.getMonth() ||
            d1.getFullYear() !== d2.getFullYear();
 }
 
