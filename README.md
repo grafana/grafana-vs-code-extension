@@ -31,20 +31,22 @@ This extension gives you support for Git (and any other version control system f
 
 ### Install from the Marketplace
 
-> Coming soon.
+1. Select the Extensions icon ![extensions icon](./public/extensions-icon.png) on the left bar in VSCode.
+2. Enter `Grafana` into the search box. Select the option for `Grafana / Grafana Editor` and click `Install`.
+3. Open the Settings tab inside the extension (CTRL+, (comma) or `cmd` + `,` on Mac) and search for `grafana`. Then select `Extensions`.
+4. Provide the default URL for your Grafana instance in the `URL` field. If you are using a local Grafana instance, the default value is `http://localhost:3000`.
+5. Create a [Service account in Grafana](https://grafana.com/docs/grafana/latest/administration/service-accounts/#create-a-service-account-in-grafana) and add a token to it.
+6. In the VS Code settings, click `Set your token, securely` then paste your token into the popup. Press ENTER.
+7. Open a folder on your computer that has some dashboard JSON (if you don't have any of your own, navigate to the `dashboards` folder of this repo).
+8. Right-click on a dashboard JSON file and select `Edit in Grafana`.
+9. Have fun!
+10. Note, clicking `save` on your dashboard will update the JSON file in your local folder.
 
 ### Run from Repository
 1. If using local Grafana, start Grafana locally or via Docker.
 2. Run `yarn install` in this repo.
 3. Open this repo VS Code, then press `F5` to start the extension locally.
-4. Open the Settings tab inside the extension (CTRL+, (comma) or `cmd` + `,` on Mac) and search for `grafana`. Then select `Extensions`.
-5. Provide the default URL for your Grafana instance in the `URL` field. If you are using a local Grafana instance, the default value is `http://localhost:3000`.
-6. Create a [Service account in Grafana](https://grafana.com/docs/grafana/latest/administration/service-accounts/#create-a-service-account-in-grafana) and add a token to it.
-7. In the VS Code settings, click `Set your token, securely` then paste your token into the popup. Press ENTER.
-8. Open a folder on your computer that has some dashboard JSON (if you don't have any of your own, navigate to the `dashboards` folder of this repo).
-9. Right-click on a dashboard JSON file and select `Edit in Grafana`.
-10. Have fun!
-11. Note, clicking `save` on your dashboard will update the JSON file in your local folder.
+4. Continue from step 4 above.
 
 ### Develop
 To make changes to this codebase, follow the instructions about how to run from this repository. Then, in your original VS Code window, make changes to the extension. Then, restart the extension with either CTRL+SHIFT+F5 (CMD+SHIFT+F5 on a Mac) or by clicking the green restart circle.
@@ -56,23 +58,3 @@ To view debug logs, use CTRL+SHIFT+P (CMD+SHIFT+P on Mac) then select "Developer
 - `grafana-vscode.URL`: Set the URL of the Grafana instance you want to open the dashboard in. Defaults to 'http://localhost:3000'.
 - `grafana-vscode.service-account-token`: A Service Account token. This is stored in the operating system secret store. Defaults to an empty string.
 
-## Plugin communication with Grafana
-
-```mermaid
-sequenceDiagram
-    participant Webview as Webview <br> (inside the VS Code Extension)
-    participant Iframe as Iframe (Grafana) <br> (rendered inside the extension's webview)
-    participant ProxyServer as Proxy server <br> (running inside the extension)
-    participant Grafana as Grafana Instance <br> (running outside the extension)
-    participant FileSystem as File system
-
-    Note over ProxyServer: Starts on random port
-    Webview->>Iframe: Render an iframe for Grafana. Callback URL to the proxy is an iframe src URL param 
-    Iframe->>ProxyServer: Requests HTML dashboard page/etc
-    ProxyServer->>Grafana: Requests HTML dashboards page/etc
-    Iframe->>ProxyServer: Request to retrieve the JSON for opened dashboard
-    FileSystem->>ProxyServer: Retrieve JSON
-    ProxyServer-->>Iframe: JSON for opened dashboard
-    Iframe->>ProxyServer: Edited dashboard JSON on save
-    ProxyServer->>FileSystem: Edited dashboard JSON
-```
