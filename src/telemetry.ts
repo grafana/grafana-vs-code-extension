@@ -25,8 +25,8 @@ export async function sendTelemetry(ctx: vscode.ExtensionContext) {
         if (differentDay(new Date(lastUpdatedDate), today)) {
             let uuid = ctx.globalState.get(INSTALLATION_UUID);
             if (uuid === undefined) {
-                console.log("missing uuid");
-                return;
+                uuid = uuidv4();
+                ctx.globalState.update(INSTALLATION_UUID, uuid);
             }
             await sendEvent("subsequent", uuid as string);
             ctx.globalState.update(LAST_UPDATED_DATE, today);
@@ -35,8 +35,6 @@ export async function sendTelemetry(ctx: vscode.ExtensionContext) {
 }
 
 function differentDay(d1: Date, d2: Date) {
-    d1.getMonth() !== d2.getMonth() &&
-    d1.getFullYear() !== d2.getFullYear());
     return d1.getDay() !== d2.getDay() &&
            d1.getMonth() !== d2.getMonth() &&
            d1.getFullYear() !== d2.getFullYear();
