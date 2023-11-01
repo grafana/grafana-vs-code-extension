@@ -31,7 +31,7 @@ This extension gives you support for Git (and any other version control system f
 
 ### Install from the Marketplace
 
-1. Select the Extensions icon ![extensions icon](./public/extensions-icon.png) on the left bar in VSCode.
+1. Select the Extensions icon (![extensions icon](./public/extensions-icon.png)) on the left bar in VSCode.
 2. Enter `Grafana` into the search box. Select the option for `Grafana / Grafana Editor` and click `Install`.
 3. Open the Settings tab inside the extension (CTRL+, (comma) or `cmd` + `,` on Mac) and search for `grafana`. Then select `Extensions`.
 4. Provide the default URL for your Grafana instance in the `URL` field. If you are using a local Grafana instance, the default value is `http://localhost:3000`.
