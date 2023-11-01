@@ -54,7 +54,8 @@ To make changes to this codebase, follow the instructions about how to run from 
 To view debug logs, use CTRL+SHIFT+P (CMD+SHIFT+P on Mac) then select "Developer: Open Webview Developer Tools".
 
 ## Extension Settings
-
 - `grafana-vscode.URL`: Set the URL of the Grafana instance you want to open the dashboard in. Defaults to 'http://localhost:3000'.
 - `grafana-vscode.service-account-token`: A Service Account token. This is stored in the operating system secret store. Defaults to an empty string.
 
+## Extension communication with Grafana
+Details of how this extension communicates with Grafana is available [here](https://github.com/grafana/grafana-vs-code-extension/blob/main/how-it-works.md).

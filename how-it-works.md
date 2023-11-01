@@ -1,4 +1,4 @@
-# Plugin communication with Grafana
+# Extension communication with Grafana
 
 The below diagram explains how this extension communicates with Grafana.
 
