@@ -4,6 +4,7 @@ import {v4 as uuidv4} from 'uuid';
 import * as util from "./util";
 
 const LAST_UPDATED_DATE = "lastUpdatedDate";
+const INSTALLATION_DATE = "installDate";
 const INSTALLATION_UUID = "installUUID";
 const URL = "https://stats.grafana.org/vscode-extension";
 
@@ -18,18 +19,25 @@ export async function sendTelemetry(ctx: vscode.ExtensionContext) {
 
     if (lastUpdatedDate === undefined) {
         const uuid = uuidv4();
-        await sendEvent("first", uuid);
+        await sendEvent("first", uuid, today.toISOString());
         ctx.globalState.update(LAST_UPDATED_DATE, today);
         ctx.globalState.update(INSTALLATION_UUID, uuid);
+        ctx.globalState.update(INSTALLATION_DATE, today);
     } else {
         if (differentDay(new Date(lastUpdatedDate), today)) {
             let uuid = ctx.globalState.get(INSTALLATION_UUID);
+            let installDate = ctx.globalState.get(INSTALLATION_DATE);
             if (uuid === undefined) {
                 console.log("UUID undefined. Shouldn't happen.");
                 uuid = uuidv4();
                 ctx.globalState.update(INSTALLATION_UUID, uuid);
             }
-            await sendEvent("subsequent", uuid as string);
+            if (installDate === undefined) {
+                console.log("Install date undefined. Shouldn't happen.");
+                installDate = (new Date(lastUpdatedDate)).toISOString();
+                ctx.globalState.update(INSTALLATION_DATE, installDate);
+            }
+            await sendEvent("subsequent", uuid as string, installDate as string);
             ctx.globalState.update(LAST_UPDATED_DATE, today);
         }
     }
@@ -41,13 +49,17 @@ function differentDay(d1: Date, d2: Date) {
            d1.getFullYear() !== d2.getFullYear();
 }
 
-async function sendEvent(eventType: string, uuid: String) {
+async function sendEvent(eventType: string, uuid: string, installDate: string) {
     try {
         const data = {
             uuid: uuid,
             eventType: eventType,
             timestamp: Date(),
-            extensionVersion: util.getVersion(),
+            createdAt: installDate,
+            os: process.platform,
+            arch: process.arch,
+            packaging: "unknown",
+            version: util.getVersion(),
         };
 
         await axios.post(URL, data, {
