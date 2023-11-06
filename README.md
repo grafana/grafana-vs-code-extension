@@ -34,13 +34,17 @@ This extension gives you support for Git (and any other version control system f
 1. Select the Extensions icon (![extensions icon](./public/extensions-icon.png)) on the left bar in VSCode.
 2. Enter `Grafana` into the search box. Select the option for `Grafana / Grafana Editor` and click `Install`.
 3. Open the Settings tab inside the extension (CTRL+, (comma) or `cmd` + `,` on Mac) and search for `grafana`. Then select `Extensions`.
-4. Provide the default URL for your Grafana instance in the `URL` field. If you are using a local Grafana instance, the default value is `http://localhost:3000`.
-5. Create a [Service account in Grafana](https://grafana.com/docs/grafana/latest/administration/service-accounts/#create-a-service-account-in-grafana) and add a token to it.
-6. In the VS Code settings, click `Set your token, securely` then paste your token into the popup. Press ENTER.
-7. Open a folder on your computer that has some dashboard JSON (if you don't have any of your own, navigate to the `dashboards` folder of this repo).
-8. Right-click on a dashboard JSON file and select `Edit in Grafana`.
-9. Have fun!
-10. Note, clicking `save` on your dashboard will update the JSON file in your local folder.
+
+### Configure the Extension
+1. Provide the default URL for your Grafana instance in the `URL` field. If you are using a local Grafana instance, the default value is `http://localhost:3000`.
+2. Create a [Service account in Grafana](https://grafana.com/docs/grafana/latest/administration/service-accounts/#create-a-service-account-in-grafana) and add a token to it.
+3. In the VS Code settings, click `Set your token, securely` then paste your token into the popup. Press ENTER.
+
+### Using the Extension
+1. Open a folder on your computer that has some dashboard JSON (if you don't have any of your own, navigate to the `dashboards` folder of [this repo](https://github.com/grafana/grafana-vs-code-extension/tree/main/dashboards)).
+2. Right-click on a dashboard JSON file in the file explorer and select `Edit in Grafana`.
+3. Have fun!
+4. Note, clicking `save` on your dashboard will update the JSON file in your local folder.
 
 ### Run from Repository
 1. If using local Grafana, start Grafana locally or via Docker.
