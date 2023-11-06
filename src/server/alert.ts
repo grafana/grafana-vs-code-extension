@@ -89,7 +89,6 @@ export function addEndpoints(url: string,
           'User-Agent': ctx.globalState.get("userAgent"),
         },
       });
-      console.log("USER AGENT:", ctx.globalState.get("userAgent"));
       res.write(resp.data as string);
     } catch (e) {
       let msg = "";
@@ -113,7 +112,7 @@ export function addEndpoints(url: string,
     }
   });
 
-  function getReferer(url: string|undefined):string {
+  function getRefererFilename(url: string|undefined):string {
     let paramstr = url?.split("?")[1] as string;
     let params = paramstr?.split("&");
     let filename = "";
@@ -130,7 +129,7 @@ export function addEndpoints(url: string,
     express.json(),
     cors(corsOptions),
     (req, res) => {
-      const filename = getReferer(req.headers.referer);
+      const filename = getRefererFilename(req.headers.referer);
       if (filename === "") {
         console.log("Filename not specified in referer");
         res.sendStatus(500);
@@ -142,7 +141,7 @@ export function addEndpoints(url: string,
           res.sendStatus(500);
           return;
         }
-        res.send({"test-alert-folder": [JSON.parse(data)]});
+        res.send({folder: [JSON.parse(data)]});
       });
     },
   );
@@ -152,17 +151,13 @@ export function addEndpoints(url: string,
     express.json(),
     cors(corsOptions),
     (req, res) => {
-      const filename = getReferer(req.headers.referer);
+      const filename = getRefererFilename(req.headers.referer);
       if (!filename) {
         console.log("Filename not specified in referer");
         res.send(500);
         return;
       }
-      res.send({"message":"rule group updated successfully"});
-      return;
-      const uid = req.headers.referer?.split("/")[4];
-      const jsonData = JSON.stringify(req.body.dashboard, null, 2);
-
+      const jsonData = JSON.stringify(req.body, null, 2);
       fs.writeFile(filename, jsonData, "utf-8", (err) => {
         if (err) {
           console.error("Error writing file:", err);
@@ -172,6 +167,29 @@ export function addEndpoints(url: string,
         }
       });
     },
+  );
+
+  app.get('/api/search',
+    cors(corsOptions),
+    (req, res) => {
+      if (req.query.type === "dash-folder-alerting") {
+        res.send(
+          [{
+            id:1,
+            uid:"a2087c12-87c9-4888-8f9f-eccebac5041f",
+            title:"folder",
+            uri:"db/folder",
+            url:"/dashboards/f/a2087c12-87c9-4888-8f9f-eccebac5041f/folder",
+            slug:"",
+            type:"dash-folder",
+            tags:[],
+            isStarred:false,
+            sortMeta:0,
+          }]);
+      } else {
+        res.send([]);
+      }
+    }
   );
 
   app.get('/api/folders/:uid',
@@ -219,7 +237,9 @@ export function addEndpoints(url: string,
     });
   }
 
-  const mustProxyPOST = ["xx1"];
+  const mustProxyPOST = [
+    "/api/v1/eval",
+  ];
   for (const path of mustProxyPOST) {
     app.post(path, function (req, res) {
       proxy.web(req, res, {});

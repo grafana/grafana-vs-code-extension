@@ -174,7 +174,6 @@ export function addEndpoints(url: string,
     "/api/live/list": [],
     "/api/user/orgs": [{"orgId":1,"name":"Main Org.","role":"Admin"}],
     "/api/annotations": [],
-    "/api/search": [],
     "/api/usage/*": [],
     "/api/prometheus/grafana/api/v1/rules": {
       status: "success",
