@@ -52,7 +52,7 @@ export function addEndpoints(url: string,
         const rules = JSON.parse(data) as RuleSet;
         let html = `<style>body, a {color: white;}</style><h1>Rule set: ${rules.name}</h1><ul>`;
         for (const rule of rules.rules) {
-          html += `<li><a href="/alerting/${rule.grafana_alert.uid}/edit?filename=${filename}&returnTo=/alert-overview%3Ffilename=${filename}">${rule.grafana_alert.title} (${rule.grafana_alert.uid})</li>`;
+          html += `<li><a href="/alerting/${rule.grafana_alert.uid}/edit?filename=${filename}&returnTo=/alerting/list">${rule.grafana_alert.title} (${rule.grafana_alert.uid})</li>`;
         }
         html += "</ul>";
         res.write(html);
@@ -80,7 +80,7 @@ export function addEndpoints(url: string,
    */
   app.get("/alerting/([^/]+)/edit", async function (req, res) {
     try {
-      const resp = await axios.get(url + req.url, {
+	    const resp = await axios.get(url + req.url, {
         maxRedirects: 0,
         headers: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -195,6 +195,7 @@ export function addEndpoints(url: string,
   app.get('/api/folders/:uid',
     cors(corsOptions),
     (req, res) => {
+      const today = new Date().toISOString();
       res.send({
         /* eslint-disable @typescript-eslint/naming-convention */
         "id": 1,
@@ -206,6 +207,10 @@ export function addEndpoints(url: string,
         "canEdit": true,
         "canAdmin": false,
         "canDelete": true,
+        "createdBy": "admin",
+        "updatedBy": "admin",
+        "created": today,
+        "updated": today,
         "version": 1,
         "accessControl": {
             "alert.rules:create": true,
