@@ -78,6 +78,12 @@
           "default": true,
           "markdownDescription": "A service account token for your Grafana instance. Click the link below to add this to secure storage.\n\n[Set your token, securely](command:grafana-vscode.setPassword)",
           "order": 2
+        },
+        "grafana-vscode.telemetry": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable basic telemetry. All data is anonymous and only used to help with feature prioritization/gloating/etc.",
+          "order": 3
         }
       }
     }

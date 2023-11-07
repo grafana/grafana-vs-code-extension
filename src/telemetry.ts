@@ -6,7 +6,7 @@ import * as util from "./util";
 const LAST_UPDATED_DATE = "lastUpdatedDate";
 const INSTALLATION_DATE = "installDate";
 const INSTALLATION_UUID = "installUUID";
-const URL = "https://stats.grafana.org/vscode-extension";
+const URL = "https://stats.grafana.org/vscode-usage-report";
 
 /*
  * Sends a single anonymous telemetry call once per month, allowing tracking of
@@ -14,6 +14,11 @@ const URL = "https://stats.grafana.org/vscode-extension";
  */
 export async function sendTelemetry(ctx: vscode.ExtensionContext) {
 
+    const settings = vscode.workspace.getConfiguration("grafana-vscode");
+    const enableTelemetry = settings.get<boolean>("telemetry");
+    if (!enableTelemetry) {
+        return;
+    }
     const lastUpdatedDate = ctx.globalState.get<string | undefined>(LAST_UPDATED_DATE);
     const today = new Date();
 
