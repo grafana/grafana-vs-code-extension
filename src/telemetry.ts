@@ -6,6 +6,8 @@ import * as util from "./util";
 const LAST_UPDATED_DATE = "lastUpdatedDate";
 const INSTALLATION_DATE = "installDate";
 const INSTALLATION_UUID = "installUUID";
+const RECENT_VIEWS = "recentViews";
+
 const URL = "https://stats.grafana.org/vscode-usage-report";
 
 /*
@@ -24,11 +26,15 @@ export async function sendTelemetry(ctx: vscode.ExtensionContext) {
 
     if (lastUpdatedDate === undefined) {
         const uuid = uuidv4();
-        await sendEvent("first", uuid, today.toISOString());
+        await sendEvent("first", uuid, today.toISOString(), 1);
         ctx.globalState.update(LAST_UPDATED_DATE, today);
         ctx.globalState.update(INSTALLATION_UUID, uuid);
         ctx.globalState.update(INSTALLATION_DATE, today);
+        ctx.globalState.update(RECENT_VIEWS, 0);
     } else {
+        let recentViews = ctx.globalState.get<number | undefined>(RECENT_VIEWS);
+        recentViews = (recentViews === undefined) ? 1 : recentViews+1;
+
         if (differentDay(new Date(lastUpdatedDate), today)) {
             let uuid = ctx.globalState.get(INSTALLATION_UUID);
             let installDate = ctx.globalState.get(INSTALLATION_DATE);
@@ -42,9 +48,11 @@ export async function sendTelemetry(ctx: vscode.ExtensionContext) {
                 installDate = (new Date(lastUpdatedDate)).toISOString();
                 ctx.globalState.update(INSTALLATION_DATE, installDate);
             }
-            await sendEvent("subsequent", uuid as string, installDate as string);
+            await sendEvent("subsequent", uuid as string, installDate as string, recentViews);
             ctx.globalState.update(LAST_UPDATED_DATE, today);
+            recentViews = 0;
         }
+        ctx.globalState.update(RECENT_VIEWS, recentViews);
     }
 }
 
@@ -54,7 +62,7 @@ function differentDay(d1: Date, d2: Date) {
            d1.getFullYear() !== d2.getFullYear();
 }
 
-async function sendEvent(eventType: string, uuid: string, installDate: string) {
+async function sendEvent(eventType: string, uuid: string, installDate: string, views: number | undefined) {
     try {
         const data = {
             uuid: uuid,
@@ -64,6 +72,7 @@ async function sendEvent(eventType: string, uuid: string, installDate: string) {
             os: process.platform,
             arch: process.arch,
             packaging: "unknown",
+            views: views,
             version: util.getVersion(),
         };
 
