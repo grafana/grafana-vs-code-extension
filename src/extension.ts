@@ -20,9 +20,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
       (uri: vscode.Uri) => {
         vscode.commands.executeCommand(
           "vscode.openWith",
-          uri.with({
-            path: uri?.fsPath,
-          }),
+          uri,
           GrafanaEditorProvider.viewType,
         );
       }),
