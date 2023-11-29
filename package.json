@@ -4,7 +4,7 @@
   "displayName": "Grafana",
   "description": "Grafana Editor",
   "icon": "public/grafana_icon.png",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "license": "Apache-2.0",
   "repository": {
 		"type": "git",
