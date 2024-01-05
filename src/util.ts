@@ -1,9 +1,15 @@
-export function getNonce() {
-  let text = "";
-  const possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (let i = 0; i < 32; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
+let userAgent: string;
+let version: string;
+
+export function setVersion(v: string) {
+  version = v;
+  userAgent = `Grafana VSCode Extension/v${version}`;
+}
+
+export function getVersion(): string {
+  return version;
+}
+
+export function getUserAgent(): string {
+  return userAgent;
 }

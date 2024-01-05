@@ -7,18 +7,13 @@ import * as cors from "cors";
 import { detectRequestSource } from "./middleware";
 import axios from "axios";
 import * as path from "path";
+import * as util from "./util";
 
 export let port = 0;
 
 let server: Server;
 
-let userAgent: string;
-
 export const TOKEN_SECRET = "grafana-vscode.token";
-
-export function setVersion(version: string) {
-  userAgent = `Grafana VSCode Extension/v${version}`;
-}
 
 export async function startServer(secrets: vscode.SecretStorage, extensionPath: string) {
   const settings = vscode.workspace.getConfiguration("grafana-vscode");
@@ -42,7 +37,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
       // eslint-disable-next-line @typescript-eslint/naming-convention
       Authorization: `Bearer ${token}`,
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      'User-Agent': userAgent,
+      'User-Agent': util.getUserAgent(),
     },
   });
 
@@ -81,7 +76,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
           // eslint-disable-next-line @typescript-eslint/naming-convention
           Authorization: `Bearer ${token}`,
           // eslint-disable-next-line @typescript-eslint/naming-convention
-          'User-Agent': userAgent,
+          'User-Agent': util.getUserAgent(),
         },
       });
       res.write(resp.data);
