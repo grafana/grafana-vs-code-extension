@@ -11,8 +11,8 @@ const RECENT_VIEWS = "recentViews";
 const URL = "https://stats.grafana.org/vscode-usage-report";
 
 /*
- * Sends a single anonymous telemetry call once per month, allowing tracking of
- * usage - reports on first opening of a dashboard each month.
+ * Sends a single anonymous telemetry call once per day, allowing tracking of
+ * usage - reports on first opening of a dashboard each day.
  */
 export async function sendTelemetry(ctx: vscode.ExtensionContext) {
 
