@@ -21,6 +21,12 @@ The preview supports normal GUI editing. If you save the dashboard in the previe
 >
 > Additional information can be found in [Release life cycle for Grafana Labs](https://grafana.com/docs/release-life-cycle/).
 
+## Why Work With Dashboards as Code?
+
+- JSON dashboards can be stored in your version control system. This provides a simple solution for rollback, history, auditing, and even change control.
+- Dashboards can be generated with tools like [Grafonnet](https://grafana.github.io/grafonnet/index.html)
+- Dashboards can be integrated into your IaC practices using [Terraform, Ansible, Grafana Operator, or Grizzly](https://grafana.com/blog/2022/12/06/a-complete-guide-to-managing-grafana-as-code-tools-tips-and-tricks/)
+
 ## Features
 
 - Reads a dashboard JSON you have locally.
