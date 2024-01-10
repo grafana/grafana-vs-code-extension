@@ -2,18 +2,13 @@
 
 Grafana has an extensive UI for editing its dashboards. For many, this is sufficient for their needs. If this is you, this extension is not for you.
 
-However, some wish to use software development tools (e.g. git) to manage their dashboards and other observability resources. Dashboards can be exported as JSON, however this JSON is hard to understand and interpret. This extension allows a user to edit a JSON file, inside VSCode, but using the Grafana UI to make the edits. The resulting changes on save are written to your VSCode workspace, not to Grafana itself, and from there can be managed in your version control system of choice, e.g. git.
+However, some wish to use software development tools (e.g. git) to manage their dashboards and other observability resources. Dashboards can be exported as JSON, however this JSON is hard to understand and interpret. This extension allows you to:
+- Open a Grafana dashboard JSON file
+- Start a live preview of that dashboard inside VS Code, connected to live data from a Grafana instance of your choice
+- Edit the dashboard in the preview, using the normal Grafana dashboard editor UI
+- From the editor UI, save the updated dashboard back to the original JSON file
 
-This essentially moves the single source of truth from Grafana itself to your version control system, which allows for dashboards to participate in gitops style workflows that are commonly used for much of the rest of our software.
-
-This extension allows you to test your dashboards inside VS Code without making changes to your Grafana instance. This has a few advantages:
-- It's much faster than copy-pasting JSON into Grafana
-- If you have change-control policies for your Grafana stack, this extension allows you and other developers to test and verify dashboard changes before deploying them
-- You can use VS Code features (for example, Git integration) with your Grafana dashboards
-
-The extension will connect to a Grafana instance of your choice, allowing you to preview your dashboard with live data.
-
-The preview supports normal GUI editing. If you save the dashboard in the preview, changes are written to your local JSON file.
+Managing dashboards as code moves the single source of truth from Grafana itself to your version control system, which allows for dashboards to participate in gitops style workflows that are commonly used for much of the rest of software development.
 
 > **This library is experimental**
 >
@@ -28,6 +23,7 @@ The preview supports normal GUI editing. If you save the dashboard in the previe
 ## Why Work With Dashboards as Code?
 
 - JSON dashboards can be stored in your version control system. This provides a simple solution for rollback, history, auditing, and even change control.
+- If you have change-control policies for your Grafana stack, this extension allows you and other developers to test and verify dashboard changes before deploying them
 - Dashboards can be generated with tools like [Grafonnet](https://grafana.github.io/grafonnet/index.html)
 - Dashboards can be integrated into your IaC practices using [Terraform, Ansible, Grafana Operator, or Grizzly](https://grafana.com/blog/2022/12/06/a-complete-guide-to-managing-grafana-as-code-tools-tips-and-tricks/)
 
