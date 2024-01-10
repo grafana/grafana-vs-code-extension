@@ -1,6 +1,10 @@
 # VS Code Extension for Grafana
 
-Grafana dashboards can be imported, exported, and edited as JSON. To test a dashboard you've edited, you ordinarily need to import the JSON back into Grafana.
+Grafana has an extensive UI for editing its dashboards. For many, this is sufficient for their needs. If this is you, this extension is not for you.
+
+However, some wish to use software development tools (e.g. git) to manage their dashboards and other observability resources. Dashboards can be exported as JSON, however this JSON is hard to understand and interpret. This extension allows a user to edit a JSON file, inside VSCode, but using the Grafana UI to make the edits. The resulting changes on save are written to your VSCode workspace, not to Grafana itself, and from there can be managed in your version control system of choice, e.g. git.
+
+This essentially moves the single source of truth from Grafana itself to your version control system, which allows for dashboards to participate in gitops style workflows that are commonly used for much of the rest of our software.
 
 This extension allows you to test your dashboards inside VS Code without making changes to your Grafana instance. This has a few advantages:
 - It's much faster than copy-pasting JSON into Grafana
