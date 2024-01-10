@@ -1,8 +1,14 @@
 # VS Code Extension for Grafana
 
-VS Code Extension for Grafana is an extension for VSCode that allows you to view, edit, and preview a dashboard in a running instance of Grafana without opening a browser - and without having to save the changes remotely before you are done. No more cutting/pasting JSON!
+Grafana has an extensive UI for editing its dashboards. For many, this is sufficient for their needs. If this is you, this extension is not for you.
 
-This extension gives you support for Git (and any other version control system for that matter) when editing dashboards as JSON. If it is available in VS Code, it is available for you immediately.
+However, some wish to use software development tools (e.g. git) to manage their dashboards and other observability resources. Dashboards can be exported as JSON, however this JSON is hard to understand and interpret. This extension allows you to:
+- Open a Grafana dashboard JSON file
+- Start a live preview of that dashboard inside VS Code, connected to live data from a Grafana instance of your choice
+- Edit the dashboard in the preview, using the normal Grafana dashboard editor UI
+- From the editor UI, save the updated dashboard back to the original JSON file
+
+Managing dashboards as code moves the single source of truth from Grafana itself to your version control system, which allows for dashboards to participate in gitops style workflows that are commonly used for much of the rest of software development.
 
 > **This library is experimental**
 >
@@ -14,12 +20,19 @@ This extension gives you support for Git (and any other version control system f
 >
 > Additional information can be found in [Release life cycle for Grafana Labs](https://grafana.com/docs/release-life-cycle/).
 
+## Why Work With Dashboards as Code?
+
+- JSON dashboards can be stored in your version control system. This provides a simple solution for rollback, history, auditing, and even change control.
+- If you have change-control policies for your Grafana stack, this extension allows you and other developers to test and verify dashboard changes before deploying them
+- Dashboards can be generated with tools like [Grafonnet](https://grafana.github.io/grafonnet/index.html)
+- Dashboards can be integrated into your IaC practices using [Terraform, Ansible, Grafana Operator, or Grizzly](https://grafana.com/blog/2022/12/06/a-complete-guide-to-managing-grafana-as-code-tools-tips-and-tricks/)
+
 ## Features
 
 - Reads a dashboard JSON you have locally.
 - Opens the dashboard configured in the JSON in a running Grafana instance, right inside your IDE.
 - Allows you to edit the dashboard from the UI.
-- Saves your changes to _your_ JSON when you hit "Save" in the IDE panel.
+- Saves your changes to _your_ JSON when you hit "Save" in the preview.
 
 ## Requirements
 
