@@ -45,18 +45,30 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
     webviewPanel.webview.html = this.getHtmlForWebview(document);
   }
 
+  private getTheme(): string {
+    const kind = vscode.window.activeColorTheme.kind;
+    if (kind === vscode.ColorThemeKind.Light || kind === vscode.ColorThemeKind.HighContrastLight) {
+      return "light";
+    } else {
+      return "dark";
+    }
+  }
+
   /**
    * Get the static html used for the editor webviews.
    */
   private getHtmlForWebview(document: vscode.TextDocument): string {
     const dash = JSON.parse(document.getText());
     const uid: string = dash.uid;
+    const theme = this.getTheme();
+
     let view = GrafanaEditorProvider.webviewContent.replaceAll(
       "${filename}",
       document.uri.fsPath,
     );
     view = view.replaceAll("${port}", port.toString());
     view = view.replaceAll("${uid}", uid);
+    view = view.replaceAll("${theme}", theme);
     return view;
   }
 }
