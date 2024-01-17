@@ -46,11 +46,21 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
   }
 
   private getTheme(): string {
+
+    const settings = vscode.workspace.getConfiguration("grafana-vscode");
+    const theme = settings.get<string>("theme");
+    if (theme === "dark" || theme === "light") {
+      return `theme=${theme}&`;
+    }
+    if (theme === "fixed") {
+      return "";
+    }
+
     const kind = vscode.window.activeColorTheme.kind;
     if (kind === vscode.ColorThemeKind.Light || kind === vscode.ColorThemeKind.HighContrastLight) {
-      return "light";
+      return "theme=light&";
     } else {
-      return "dark";
+      return "theme=dark&";
     }
   }
 
