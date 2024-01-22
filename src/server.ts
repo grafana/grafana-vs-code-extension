@@ -17,8 +17,11 @@ export const TOKEN_SECRET = "grafana-vscode.token";
 
 export async function startServer(secrets: vscode.SecretStorage, extensionPath: string) {
   const settings = vscode.workspace.getConfiguration("grafana-vscode");
-  const URL = String(settings.get("URL"));
   const token = await secrets.get(TOKEN_SECRET);
+  let URL = String(settings.get("URL"));
+  if (URL.slice(-1) === "/") {
+    URL = URL.slice(0, -1);
+  }
 
   const corsOptions = {
     origin: `http://localhost:${port}`,
@@ -71,7 +74,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
   app.get("/d/:uid/:slug", async function (req, res) {
     try {
       const resp = await axios.get(URL + req.url, {
-        maxRedirects: 0,
+        maxRedirects: 5,
         headers: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           Authorization: `Bearer ${token}`,
@@ -81,14 +84,14 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
       });
       res.write(resp.data);
     } catch (e) {
-    let msg = "";
-    if (URL === "") {
-      msg += "<p><b>Error:</b> URL is not defined</p>";
-    }
-    if (token === "") {
-      msg += "<p><b>Warning:</b> No service account token specified.</p>";
-    }
-    if (axios.isAxiosError(e)) {
+      let msg = "";
+      if (URL === "") {
+        msg += "<p><b>Error:</b> URL is not defined</p>";
+      }
+      if (token === "") {
+        msg += "<p><b>Warning:</b> No service account token specified.</p>";
+      }
+      if (axios.isAxiosError(e)) {
         if (e.response?.status === 302) {
           sendErrorPage(res, msg+ "<p>Authentication error</p>");
         } else {
