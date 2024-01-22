@@ -2,6 +2,13 @@
 
 All notable changes to the "grafana-vscode" extension will be documented in this file.
 
+## v0.0.15
+- Follow redirects and don't fail on trailing slashes (#77)
+- Theming (light/dark) support for Grafana (#74)
+
+## v0.0.14
+- Improved readme (#62)
+
 ## v0.0.13
 - Add telemetry that will allow us to evaluate usefulness of this extension (#48)
 
