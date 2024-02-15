@@ -188,6 +188,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     "/public/*",
     "/api/datasources/proxy/*",
     "/api/datasources/*",
+    "/api/plugins/*",
   ];
   for (const path of mustProxyGET) {
     app.get(path, function (req, res) {
@@ -195,7 +196,10 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     });
   }
 
-  const mustProxyPOST = ["/api/ds/query"];
+  const mustProxyPOST = [
+    "/api/ds/query",
+    "/api/datasources/proxy/*",
+  ];
   for (const path of mustProxyPOST) {
     app.post(path, function (req, res) {
       proxy.web(req, res, {});
