@@ -2,6 +2,9 @@
 
 All notable changes to the "grafana-vscode" extension will be documented in this file.
 
+## v0.0.16
+- Add additional proxy endpoints (to support more dashboards/etc) (#80)
+
 ## v0.0.15
 - Follow redirects and don't fail on trailing slashes (#77)
 - Theming (light/dark) support for Grafana (#74)
