@@ -2,6 +2,10 @@
 
 All notable changes to the "grafana-vscode" extension will be documented in this file.
 
+## v0.0.17
+- Add /api/datasource/uid/* proxy endpoint
+- Remove preferences warning popup
+
 ## v0.0.16
 - Add additional proxy endpoints (to support more dashboards/etc) (#80)
 
