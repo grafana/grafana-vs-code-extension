@@ -199,6 +199,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
   const mustProxyPOST = [
     "/api/ds/query",
     "/api/datasources/proxy/*",
+    "/api/datasources/uid/*",
   ];
   for (const path of mustProxyPOST) {
     app.post(path, function (req, res) {
@@ -215,6 +216,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     "/api/annotations": [],
     "/api/search": [],
     "/api/usage/*": [],
+    "/api/org/preferences": [],
     "/api/prometheus/grafana/api/v1/rules": {
       status: "success",
       data: { groups: [] },
