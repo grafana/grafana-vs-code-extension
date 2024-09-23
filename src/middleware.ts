@@ -8,7 +8,7 @@ export function detectRequestSource(
   const userAgent = req.headers["user-agent"];
 
   if ((userAgent?.includes("Code") || userAgent?.includes("code"))
-      && userAgent?.includes("Electron")) {
+    && userAgent?.includes("Electron")) {
     next();
   } else {
     res.status(403).send("Access Denied");
