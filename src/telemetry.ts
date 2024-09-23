@@ -1,7 +1,6 @@
-import vscode from "vscode";
-import axios from "axios";
 import { v4 as uuidv4 } from 'uuid';
-import * as util from "./util";
+import vscode from 'vscode';
+import * as util from './util';
 
 const LAST_UPDATED_DATE = "lastUpdatedDate";
 const INSTALLATION_DATE = "installDate";
@@ -75,7 +74,9 @@ async function sendEvent(eventType: string, uuid: string, installDate: string, v
   };
 
   try {
-    await axios.post(URL, data, {
+    await fetch(URL, {
+      method: 'post',
+      body: JSON.stringify(data),
       headers: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         'User-Agent': util.getUserAgent(),

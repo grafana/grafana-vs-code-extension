@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express";
 import { Server, createServer } from "http";
 import { createProxyServer } from "http-proxy";
-import axios from "axios";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
@@ -72,9 +71,16 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
    * offering a "refresh" option.
    */
   app.get("/d/:uid/:slug", async function (req: Request, res: Response) {
+    let msg = "";
+    if (URL === "") {
+      msg += "<p><b>Error:</b> URL is not defined</p>";
+    }
+    if (token === "") {
+      msg += "<p><b>Warning:</b> No service account token specified.</p>";
+    }
+
     try {
-      const resp = await axios.get(URL + req.url, {
-        maxRedirects: 5,
+      const response = await fetch(URL + req.url, {
         headers: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           Authorization: `Bearer ${token}`,
@@ -82,22 +88,15 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
           'User-Agent': util.getUserAgent(),
         },
       });
-      res.send(resp.data);
+      res.send(await response.text());
+
+      if (!response.ok && response.status === 302) {
+        sendErrorPage(res, msg + "<p>Authentication error</p>");
+      } else if (!response.ok) {
+        sendErrorPage(res, msg + `<p>${response.status} ${response.statusText}</p>`);
+      }
     } catch (e) {
-      let msg = "";
-      if (URL === "") {
-        msg += "<p><b>Error:</b> URL is not defined</p>";
-      }
-      if (token === "") {
-        msg += "<p><b>Warning:</b> No service account token specified.</p>";
-      }
-      if (axios.isAxiosError(e)) {
-        if (e.response?.status === 302) {
-          sendErrorPage(res, msg + "<p>Authentication error</p>");
-        } else {
-          sendErrorPage(res, msg + `<p>${e.message}</p>`);
-        }
-      } else if (e instanceof Error) {
+      if (e instanceof Error) {
         sendErrorPage(res, msg + `<p>${e.message}</p>`);
       } else {
         sendErrorPage(res, msg + "<p>" + String(e) + "</p>");
