@@ -82,7 +82,12 @@
         "grafana-vscode.theme": {
           "type": "string",
           "default": "inherit",
-          "enum": ["inherit", "fixed", "dark", "light"],
+          "enum": [
+            "inherit",
+            "fixed",
+            "dark",
+            "light"
+          ],
           "enumDescriptions": [
             "Inherit Grafana theme from VSCode",
             "Use Grafana's own default theme",
