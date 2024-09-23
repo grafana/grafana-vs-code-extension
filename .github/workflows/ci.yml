@@ -8,17 +8,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup node
-        uses: actions/setup-node@v4
+      - name: Install devbox
+        uses: jetify-com/devbox-install-action@v0.11.0
         with:
-          cache: yarn
-          node-version: 18
+          enable-cache: 'true'
 
       - name: Install vendors
-        run: yarn install --frozen-lockfile
+        run: devbox run yarn install --frozen-lockfile
 
       - name: Compile codebase
-        run: yarn run compile
+        run: devbox run yarn run compile
 
       - name: Run linters
-        run: yarn run lint
+        run: devbox run yarn run lint
