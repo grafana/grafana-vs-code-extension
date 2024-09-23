@@ -1,5 +1,5 @@
-import * as vscode from "vscode";
-import * as fs from "fs";
+import vscode from "vscode";
+import fs from "fs";
 import { port } from "./server";
 
 export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
@@ -28,7 +28,7 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
     return providerRegistration;
   }
 
-  constructor(private readonly context: vscode.ExtensionContext) {}
+  constructor(private readonly context: vscode.ExtensionContext) { }
 
   /**
    * Called when our custom editor is opened.

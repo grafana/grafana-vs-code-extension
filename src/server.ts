@@ -1,12 +1,12 @@
-import * as express from "express";
+import express, { Request, Response } from "express";
 import { Server, createServer } from "http";
 import { createProxyServer } from "http-proxy";
-import * as fs from "fs";
-import * as vscode from "vscode";
-import * as cors from "cors";
-import { detectRequestSource } from "./middleware";
 import axios from "axios";
-import * as path from "path";
+import cors from "cors";
+import fs from "fs";
+import path from "path";
+import vscode from "vscode";
+import { detectRequestSource } from "./middleware";
 import * as util from "./util";
 
 export let port = 0;
@@ -71,7 +71,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
    * it returns an alternate HTML page to the user explaining the error, and
    * offering a "refresh" option.
    */
-  app.get("/d/:uid/:slug", async function (req, res) {
+  app.get("/d/:uid/:slug", async function (req: Request, res: Response) {
     try {
       const resp = await axios.get(URL + req.url, {
         maxRedirects: 5,
@@ -93,7 +93,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
       }
       if (axios.isAxiosError(e)) {
         if (e.response?.status === 302) {
-          sendErrorPage(res, msg+ "<p>Authentication error</p>");
+          sendErrorPage(res, msg + "<p>Authentication error</p>");
         } else {
           sendErrorPage(res, msg + `<p>${e.message}</p>`);
         }
@@ -109,7 +109,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     "/api/dashboards/uid/:uid",
     express.json(),
     cors(corsOptions),
-    (req, res) => {
+    (req: Request, res: Response) => {
       const refererParams = new URLSearchParams(req.headers.referer);
       const filename = refererParams.get("filename");
       if (filename === null) {
@@ -143,7 +143,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     "/api/dashboards/db/",
     express.json(),
     cors(corsOptions),
-    (req, res) => {
+    (req: Request, res: Response) => {
       const refererParams = new URLSearchParams(req.headers.referer);
       const filename = refererParams.get("filename");
       if (!filename) {
@@ -175,7 +175,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     "/api/access-control/user/actions",
     express.json(),
     cors(corsOptions),
-    (req, res) => {
+    (_: Request, res: Response) => {
       res.send({
         /* eslint-disable-next-line @typescript-eslint/naming-convention */
         "dashboards:write": true,
@@ -192,7 +192,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     "/avatar/*",
   ];
   for (const path of mustProxyGET) {
-    app.get(path, function (req, res) {
+    app.get(path, function (req: Request, res: Response) {
       proxy.web(req, res, {});
     });
   }
@@ -203,7 +203,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     "/api/datasources/uid/*",
   ];
   for (const path of mustProxyPOST) {
-    app.post(path, function (req, res) {
+    app.post(path, function (req: Request, res: Response) {
       proxy.web(req, res, {});
     });
   }
@@ -233,7 +233,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     /* eslint-enable @typescript-eslint/naming-convention */
   };
   for (const path in blockJSONget) {
-    app.get(path, function (req, res) {
+    app.get(path, function (req: Request, res: Response) {
       res.send(blockJSONget[path]);
     });
   }
@@ -246,7 +246,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     /* eslint-enable @typescript-eslint/naming-convention */
   };
   for (const path in blockJSONpost) {
-    app.post(path, function (req, res) {
+    app.post(path, function (req: Request, res: Response) {
       res.send(blockJSONpost[path]);
     });
   }
