@@ -189,6 +189,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     "/api/datasources/proxy/*",
     "/api/datasources/*",
     "/api/plugins/*",
+    "/avatar/*",
   ];
   for (const path of mustProxyGET) {
     app.get(path, function (req, res) {
@@ -221,8 +222,14 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
       status: "success",
       data: { groups: [] },
     },
-    "/avatar/*": "",
     "/api/folders": [],
+    "/api/recording-rules/writer": {
+      "id": "cojWep7Vz",
+      "data_source_uid": "grafanacloud-prom",
+      "remote_write_path": "/api/prom/push"
+    },
+    "/apis/banners.grafana.app/*": {},
+    "/api/user/preferences": {},
     /* eslint-enable @typescript-eslint/naming-convention */
   };
   for (const path in blockJSONget) {
