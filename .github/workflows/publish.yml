@@ -10,19 +10,39 @@ permissions:
 
 name: Publish Extension
 jobs:
-  eslint:
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: npm install
-      - run: npm run compile
-      - run: npm run lint
+      - uses: actions/checkout@v4
+
+      - name: Install devbox
+        uses: jetify-com/devbox-install-action@v0.11.0
+        with:
+          enable-cache: 'true'
+
+      - name: Install vendors
+        run: devbox run yarn install --frozen-lockfile
+
+      - name: Compile codebase
+        run: devbox run yarn run compile
+
+      - name: Run linters
+        run: devbox run yarn run lint
+
   publish:
     needs: eslint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: npm install
+      - uses: actions/checkout@v4
+
+      - name: Install devbox
+        uses: jetify-com/devbox-install-action@v0.11.0
+        with:
+          enable-cache: 'true'
+
+      - name: Install vendors
+        run: devbox run yarn install --frozen-lockfile --production
+
       - id: get-secrets
         uses: grafana/shared-workflows/actions/get-vault-secrets@main
         with:
@@ -30,19 +50,19 @@ jobs:
           repo_secrets: |
             OPEN_VSX_TOKEN=openvsx:token
             VS_MARKETPLACE_TOKEN=vscode-marketplace:token
+
+      - name: Create extension package
+        run: devbox run vsce package --out grafana-vscode.vsix
+      
       - name: Publish to Open VSX
-        uses: HaaLeo/publish-vscode-extension@v0
-        with:
-          pat: ${{ env.OPEN_VSX_TOKEN }}
-          registryUrl: https://open-vsx.org
+        run: devbox run npx --yes ovsx@0.9.4 publish --pat ${{ env.OPEN_VSX_TOKEN }} --packagePath grafana-vscode.vsix
+      
       - name: Publish to Visual Studio Marketplace
-        id: publishToMarketplace
-        uses: HaaLeo/publish-vscode-extension@v0
-        with:
-          pat: ${{ env.VS_MARKETPLACE_TOKEN }}
-          registryUrl: https://marketplace.visualstudio.com
-      - uses: ncipollo/release-action@v1
+        run: devbox run vsce publish --pat ${{ env.VS_MARKETPLACE_TOKEN }} --packagePath grafana-vscode.vsix
+
+      - name: Create GitHub release
+        uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: "${{ steps.publishToMarketplace.outputs.vsixPath }}"
+          artifacts: "grafana-vscode.vsix"
           token: ${{ secrets.GITHUB_TOKEN }}
