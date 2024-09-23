@@ -52,7 +52,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     const errorFile = path.join(extensionPath, "public/error.html");
     let content = fs.readFileSync(errorFile, "utf-8");
     content = content.replaceAll("${error}", message);
-    res.write(content);
+    res.send(content);
   };
 
   /*
@@ -82,7 +82,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
           'User-Agent': util.getUserAgent(),
         },
       });
-      res.write(resp.data);
+      res.send(resp.data);
     } catch (e) {
       let msg = "";
       if (URL === "") {
