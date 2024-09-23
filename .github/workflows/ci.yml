@@ -1,0 +1,24 @@
+name: CI
+on:
+  pull_request: ~
+
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          cache: yarn
+          node-version: 18
+
+      - name: Install vendors
+        run: yarn install --frozen-lockfile
+
+      - name: Compile codebase
+        run: yarn run compile
+
+      - name: Run linters
+        run: yarn run lint
