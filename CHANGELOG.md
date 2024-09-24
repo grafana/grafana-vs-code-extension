@@ -2,6 +2,10 @@
 
 All notable changes to the "grafana-vscode" extension will be documented in this file.
 
+## v0.0.19
+- Add a "new dashboard" snippet (#96)
+- Support opening dashboards via the command palette (#97)
+
 ## v0.0.18
 - Fix support for Grafana Cloud (#87)
 - Support library panels (#90)
