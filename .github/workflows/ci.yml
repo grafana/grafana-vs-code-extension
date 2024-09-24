@@ -1,0 +1,23 @@
+name: CI
+on:
+  pull_request: ~
+
+jobs:
+  linters:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install devbox
+        uses: jetify-com/devbox-install-action@v0.11.0
+        with:
+          enable-cache: 'true'
+
+      - name: Install vendors
+        run: devbox run yarn install --frozen-lockfile
+
+      - name: Compile codebase
+        run: devbox run yarn run compile
+
+      - name: Run linters
+        run: devbox run yarn run lint
