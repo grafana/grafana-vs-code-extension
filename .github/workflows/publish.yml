@@ -30,7 +30,8 @@ jobs:
         run: devbox run yarn run lint
 
   publish:
-    needs: eslint
+    needs: lint
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
