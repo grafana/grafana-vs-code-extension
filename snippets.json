@@ -9,6 +9,7 @@
 		"body": [
 			"{",
 			"  \"title\": \"${1:New dashboard title}\",",
+			"  \"uid\": \"${2:new-dashboard-uid}\",",
 			"  \"annotations\": {",
 			"    \"list\": [",
 			"      {",
