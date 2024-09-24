@@ -4,5 +4,3 @@ node_modules
 .idea
 dist
 *.vsix
-out
-.vscode-test
