@@ -125,6 +125,6 @@ export class Resource {
         break;
     }
 
-    return fs.promises.writeFile(this.filename, content)
+    return fs.promises.writeFile(this.filename, content);
   }
 }
