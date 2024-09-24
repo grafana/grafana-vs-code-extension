@@ -3,7 +3,7 @@ import vscode from 'vscode';
 import YAML from 'yaml';
 
 type Format = 'json' | 'yaml';
-type Envelope = 'none' | 'grizzly';
+type Envelope = 'none' | 'grizzly' | 'http_api';
 
 export class Resource {
   private readonly viewType = "grafana.dashboard";
@@ -43,6 +43,16 @@ export class Resource {
       return new Resource(filename, format, 'none', resourceData);
     }
 
+    // HTTP API envelope
+    // See https://grafana.com/docs/grafana/latest/developers/http_api/dashboard/#get-dashboard-by-uid
+    if (resourceData.dashboard && resourceData.meta) {
+      if (!resourceData.dashboard.uid) {
+        throw new Error(`malformed HTTP envelope in '${filename}: dashboard.uid field not found`);
+      }
+
+      return new Resource(filename, format, 'http_api', resourceData);
+    }
+
     // grizzly envelope
     if (resourceData.apiVersion === 'grizzly.grafana.com/v1alpha1') {
       if (!resourceData.metadata || !resourceData.metadata.name) {
@@ -70,6 +80,11 @@ export class Resource {
       return this.data.uid;
     }
 
+    if (this.envelope === 'http_api') {
+      return this.data.dashboard.uid;
+    }
+
+    // grizzly style
     return this.data.metadata.name;
   }
   
@@ -77,13 +92,22 @@ export class Resource {
     if (this.envelope === 'none') {
       return this.data;
     }
+    if (this.envelope === 'http_api') {
+      return this.data.dashboard;
+    }
 
+    // grizzly style
     return this.data.spec;
   }
 
   public withSpec(newSpec: any): Resource {
     if (this.envelope === 'grizzly') {
       const newData = {...this.data, ...{spec: newSpec}};
+      return new Resource(this.filename, this.format, this.envelope, newData);
+    }
+
+    if (this.envelope === 'http_api') {
+      const newData = {...this.data, ...{dashboard: newSpec}};
       return new Resource(this.filename, this.format, this.envelope, newData);
     }
 
