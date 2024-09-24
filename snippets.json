@@ -1,0 +1,51 @@
+{
+	"New Grafana dashboard": {
+		"prefix": [
+			"grafana_dashboard",
+			"dashboard"
+		],
+		"description": "Create a new Grafana dashboard",
+		"isFileTemplate": true,
+		"body": [
+			"{",
+			"  \"title\": \"${1:New dashboard title}\",",
+			"  \"uid\": \"${2:new-dashboard-uid}\",",
+			"  \"annotations\": {",
+			"    \"list\": [",
+			"      {",
+			"        \"builtIn\": 1,",
+			"        \"datasource\": {",
+			"          \"type\": \"grafana\",",
+			"          \"uid\": \"-- Grafana --\"",
+			"        },",
+			"        \"enable\": true,",
+			"        \"hide\": true,",
+			"        \"iconColor\": \"rgba(0, 211, 255, 1)\",",
+			"        \"name\": \"Annotations & Alerts\",",
+			"        \"type\": \"dashboard\"",
+			"      }",
+			"    ]",
+			"  },",
+			"  \"editable\": true,",
+			"  \"fiscalYearStartMonth\": 0,",
+			"  \"graphTooltip\": 0,",
+			"  \"links\": [],",
+			"  \"panels\": [],",
+			"  \"preload\": false,",
+			"  \"schemaVersion\": 39,",
+			"  \"tags\": [],",
+			"  \"templating\": {",
+			"    \"list\": []",
+			"  },",
+			"  \"time\": {",
+			"    \"from\": \"now-6h\",",
+			"    \"to\": \"now\"",
+			"  },",
+			"  \"timepicker\": {},",
+			"  \"timezone\": \"browser\",",
+			"  \"version\": 0,",
+			"  \"weekStart\": \"\"",
+			"}"
+		]
+	}
+}
