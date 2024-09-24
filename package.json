@@ -15,7 +15,8 @@
   },
   "publisher": "Grafana",
   "categories": [
-    "Visualization"
+    "Visualization",
+    "Snippets"
   ],
   "keywords": [
     "Grafana",
@@ -57,6 +58,12 @@
         }
       ]
     },
+    "snippets": [
+      {
+        "language": "json",
+        "path": "./snippets.json"
+      }
+    ],
     "iconThemes": [
       {
         "id": "grafana",
