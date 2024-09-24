@@ -41,14 +41,14 @@
     "commands": [
       {
         "command": "grafana-vscode.openUrl",
-        "title": "Edit in Grafana"
+        "title": "Grafana: Edit in Grafana"
       }
     ],
     "menus": {
       "commandPalette": [
         {
           "command": "grafana-vscode.openUrl",
-          "when": "false"
+          "when": "resourceExtname == .json || resourceExtname == .yaml || resourceExtname == .yml"
         }
       ],
       "explorer/context": [

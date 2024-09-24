@@ -18,11 +18,21 @@ export async function activate(ctx: vscode.ExtensionContext) {
   ctx.subscriptions.push(
     vscode.commands.registerCommand(
       "grafana-vscode.openUrl",
-      (uri: vscode.Uri) => {
+      (uri?: vscode.Uri) => {
         sendTelemetry(ctx);
+        
+        // This command can be invoked from a contextual menu, in which case uri
+        // has a value.
+        // It can also be invoked from the command palette, in which case we try to find
+        // the active document.
+        let actualUri = uri || vscode.window.activeTextEditor?.document.uri;
+        if (!actualUri) {
+          return;
+        }
+
         vscode.commands.executeCommand(
           "vscode.openWith",
-          uri,
+          actualUri,
           GrafanaEditorProvider.viewType,
         );
       }),
