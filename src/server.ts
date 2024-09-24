@@ -7,6 +7,7 @@ import path from "path";
 import vscode from "vscode";
 import { detectRequestSource } from "./middleware";
 import * as util from "./util";
+import { Resource } from "./grafana";
 
 export let port = 0;
 
@@ -49,9 +50,11 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
 
   const sendErrorPage = (res: express.Response, message: string) => {
     const errorFile = path.join(extensionPath, "public/error.html");
-    let content = fs.readFileSync(errorFile, "utf-8");
-    content = content.replaceAll("${error}", message);
-    res.send(content);
+
+    res.send(
+      fs.readFileSync(errorFile, "utf-8")
+        .replaceAll("${error}", message),
+    );
   };
 
   /*
@@ -116,24 +119,17 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
         res.sendStatus(500);
         return;
       }
-      fs.readFile(filename, "utf-8", (err, data) => {
-        if (err) {
-          console.error("Error reading file:", err);
-          res.sendStatus(500);
-          return;
-        }
-        const dash: any = JSON.parse(data);
-        const wrapper = {
-          dashboard: dash,
-          meta: {
-            isStarred: false,
-            folderId: 0,
-            folderUid: "",
-            url: `/d/${dash.uid}/slug`,
-          },
-        };
 
-        res.send(wrapper);
+      const resource = Resource.fromFile(filename);
+
+      res.send({
+        dashboard: resource.spec(),
+        meta: {
+          isStarred: false,
+          folderId: 0,
+          folderUid: "",
+          url: `/d/${resource.uid()}/slug`,
+        },
       });
     },
   );
@@ -146,26 +142,25 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
       const refererParams = new URLSearchParams(req.headers.referer);
       const filename = refererParams.get("filename");
       if (!filename) {
+        console.error('expected filename in referer parameters');
         res.send(500);
         return;
       }
-      const uid = req.headers.referer?.split("/")[4];
-      const jsonData = JSON.stringify(req.body.dashboard, null, 2);
 
-      fs.writeFile(filename, jsonData, "utf-8", (err) => {
-        if (err) {
+      const resource = Resource.fromFile(filename).withSpec(req.body.dashboard);
+
+      resource.write().then(() => {
+        res.send({
+          id: 1,
+          slug: "slug",
+          status: "success",
+          uid: resource.uid(),
+          url: `/d/${resource.uid()}/slug`,
+          version: 1,
+        });
+      }).catch((err) => {
           console.error("Error writing file:", err);
           res.sendStatus(500);
-        } else {
-          res.send({
-            id: 1,
-            slug: "slug",
-            status: "success",
-            uid: uid,
-            url: `/d/${uid}/slug`,
-            version: 1,
-          });
-        }
       });
     },
   );
