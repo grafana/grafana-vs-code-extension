@@ -1,12 +1,12 @@
-import vscode from "vscode";
+import vscode, { ColorThemeKind } from "vscode";
 import fs from "fs";
 import { port } from "./server";
+import { Resource } from "./grafana";
 
 export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
-  static webviewContent = "";
-  static webviewErrorContent = "";
+  public static readonly viewType = "grafana.dashboard";
 
-  static readonly viewType = "grafana.dashboard";
+  private static webviewContent = "";
 
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
     const provider = new GrafanaEditorProvider(context);
@@ -46,7 +46,6 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
   }
 
   private getTheme(): string {
-
     const settings = vscode.workspace.getConfiguration("grafana-vscode");
     const theme = settings.get<string>("theme");
     if (theme === "dark" || theme === "light") {
@@ -57,28 +56,34 @@ export class GrafanaEditorProvider implements vscode.CustomTextEditorProvider {
     }
 
     const kind = vscode.window.activeColorTheme.kind;
-    if (kind === vscode.ColorThemeKind.Light || kind === vscode.ColorThemeKind.HighContrastLight) {
+    if (kind === ColorThemeKind.Light || kind === ColorThemeKind.HighContrastLight) {
       return "theme=light&";
-    } else {
-      return "theme=dark&";
     }
+
+    return "theme=dark&";
   }
 
   /**
    * Get the static html used for the editor webviews.
    */
   private getHtmlForWebview(document: vscode.TextDocument): string {
-    const dash = JSON.parse(document.getText());
-    const uid: string = dash.uid;
-    const theme = this.getTheme();
+    try {
+      const resource = Resource.fromDocument(document);
 
-    let view = GrafanaEditorProvider.webviewContent.replaceAll(
-      "${filename}",
-      document.uri.fsPath,
-    );
-    view = view.replaceAll("${port}", port.toString());
-    view = view.replaceAll("${uid}", uid);
-    view = view.replaceAll("${theme}", theme);
-    return view;
+      return GrafanaEditorProvider.webviewContent
+        .replaceAll("${port}", port.toString())
+        .replaceAll("${theme}", this.getTheme())
+        .replaceAll("${filename}", resource.filename)
+        .replaceAll("${uid}", resource.uid());
+    } catch (err) {
+      return this.errorView(String(err));
+    }
+  }
+
+  private errorView(errorMessage: string): string {
+    return fs.readFileSync(
+      this.context.asAbsolutePath("public/error.html"),
+      "utf-8",
+    ).replaceAll('${error}', errorMessage);
   }
 }
