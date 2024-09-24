@@ -182,6 +182,7 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
     "/public/*",
     "/api/datasources/proxy/*",
     "/api/datasources/*",
+    "/api/library-elements*",
     "/api/plugins/*",
     "/avatar/*",
   ];
@@ -217,6 +218,8 @@ export async function startServer(secrets: vscode.SecretStorage, extensionPath: 
       data: { groups: [] },
     },
     "/api/folders": [],
+    "/api/ruler/grafana/api/v1/rules": {},
+    "/api/recording-rules": [],
     "/api/recording-rules/writer": {
       "id": "cojWep7Vz",
       "data_source_uid": "grafanacloud-prom",
