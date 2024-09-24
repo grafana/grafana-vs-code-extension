@@ -42,7 +42,7 @@ jobs:
           enable-cache: 'true'
 
       - name: Install vendors
-        run: devbox run yarn install --frozen-lockfile --production
+        run: devbox run yarn install --frozen-lockfile
 
       - id: get-secrets
         uses: grafana/shared-workflows/actions/get-vault-secrets@main
