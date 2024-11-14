@@ -114,6 +114,6 @@ jobs:
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 #v10.14.0
         with:
           allowUpdates: true
-          tag: ${{ needs.generate-release.outputs.release_version }}
+          tag: ${{ needs.generate-release.outputs.release_tag }}
           artifacts: "grafana-vscode.vsix"
           token: ${{ secrets.GITHUB_TOKEN }}
