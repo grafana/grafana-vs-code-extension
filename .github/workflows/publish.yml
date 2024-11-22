@@ -27,25 +27,8 @@ jobs:
         id: release-please
         with:
           release-type: node
-          default-branch: main
-          pull-request-title-pattern: "Automatic release v${{ version }} 🚀"
           github-token: ${{ github.secret }}
-          bump-minor-pre-major: true # Avoids to generate a major version. Remove when necessary
-          include-v-in-tag: true
-          draft-pull-request: true
-          changelog-types:
-            feat: "🎉 Features"
-            fix: "🐛 Bug Fixes"
-            deps: "🔗 Dependencies"
-            docs: "📝 Documentation"
-            ci: "🤖 Continuous Integration"
-            refactor: "♻️ Code Refactoring"
-            test: "✅ Tests"
-            revert: "⏪ Reverts"
-            style: "💄 Style"
-            build: "🏗️ Build System"
-            perf: "⚡ Performance Improvements"
-            chore: "🔧 Miscellaneous Chores"
+          config-file: .release-please.json
 
   publish:
     needs: release-please
