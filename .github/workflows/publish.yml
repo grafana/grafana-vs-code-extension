@@ -1,43 +1,49 @@
 on:
   push:
-    tags:
-      - "*"
+    branches:
+      - main
 
-# These permissions are needed to assume roles from Github's OIDC.
+# These permissions are needed to assume roles from GitHub's OIDC.
 permissions:
   contents: write
   id-token: write
+  pull-requests: write
 
 name: Publish Extension
 jobs:
-  lint:
+  release-please:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: "${{ steps.release-please.outputs.release_created }}"
+      release_tag: "${{ steps.release-please.outputs.tag_name }}"
+
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install devbox
-        uses: jetify-com/devbox-install-action@v0.11.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #v4.2.2
         with:
-          enable-cache: 'true'
+          # https://github.com/actions/checkout/issues/1467
+          fetch-depth: 0
 
-      - name: Install vendors
-        run: devbox run yarn install --frozen-lockfile
-
-      - name: Compile codebase
-        run: devbox run yarn run compile
-
-      - name: Run linters
-        run: devbox run yarn run lint
+      - uses: googleapis/release-please-action@7987652d64b4581673a76e33ad5e98e3dd56832f # v4.1.3
+        id: release-please
+        with:
+          release-type: node
+          github-token: ${{ github.secret }}
+          config-file: .release-please.json
 
   publish:
-    needs: lint
+    needs: release-please
+    if: needs.release-please.outputs.release_created
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #v4.2.2
+        with:
+          fetch-depth: 0
+          ref: "${{ needs.release-please.outputs.release_tag }}"
+          
 
       - name: Install devbox
-        uses: jetify-com/devbox-install-action@v0.11.0
+        uses: jetify-com/devbox-install-action@a03caf5813591bc882139eba6ae947930a83a427 #v0.11.0
         with:
           enable-cache: 'true'
 
@@ -61,9 +67,10 @@ jobs:
       - name: Publish to Visual Studio Marketplace
         run: devbox run vsce publish --pat ${{ env.VS_MARKETPLACE_TOKEN }} --packagePath grafana-vscode.vsix
 
-      - name: Create GitHub release
-        uses: ncipollo/release-action@v1
+      - name: Create artifacts
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
           allowUpdates: true
+          tag: ${{ needs.generate-release.outputs.release_tag }}
           artifacts: "grafana-vscode.vsix"
           token: ${{ secrets.GITHUB_TOKEN }}
