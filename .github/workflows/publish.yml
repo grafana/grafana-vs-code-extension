@@ -11,11 +11,9 @@ permissions:
 name: Publish Extension
 jobs:
   publish:
-    needs: lint
-
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #v4.2.2
 
       - name: Install devbox
         uses: jetify-com/devbox-install-action@a03caf5813591bc882139eba6ae947930a83a427 #v0.11.0
