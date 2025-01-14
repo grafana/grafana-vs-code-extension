@@ -20,7 +20,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
       "grafana-vscode.openUrl",
       (uri?: vscode.Uri) => {
         sendTelemetry(ctx);
-        
+
         // This command can be invoked from a contextual menu, in which case uri
         // has a value.
         // It can also be invoked from the command palette, in which case we try to find
@@ -38,10 +38,18 @@ export async function activate(ctx: vscode.ExtensionContext) {
       }),
   );
 
-  vscode.workspace.onDidChangeConfiguration(async (event) => {
-    if (event.affectsConfiguration("grafana-vscode.URL")) {
+  vscode.workspace.onDidChangeConfiguration(event => {
+    if (event.affectsConfiguration("grafana-vscode")) {
       restartServer(ctx.secrets, ctx.extensionPath);
     }
+  });
+
+  vscode.commands.registerCommand('grafana-vscode.setGrafanaURL', async () => {
+    const instanceURL = await vscode.window.showInputBox({
+      title: "Grafana instance URL",
+      placeHolder: "http://localhost:3000",
+    }) ?? '';
+    await vscode.workspace.getConfiguration('grafana-vscode').update('URL', instanceURL);
   });
 
   vscode.commands.registerCommand('grafana-vscode.setPassword', async () => {
@@ -51,7 +59,6 @@ export async function activate(ctx: vscode.ExtensionContext) {
       title: "Enter the service account token for your Grafana instance. This value will be stored securely in your operating system's secure key store."
     }) ?? '';
     await ctx.secrets.store(TOKEN_SECRET, passwordInput);
-    restartServer(ctx.secrets, ctx.extensionPath);
   });
 
   installSourceMapSupport();
