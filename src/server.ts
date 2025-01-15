@@ -261,7 +261,5 @@ export function restartServer(secrets: vscode.SecretStorage, extensionPath: stri
   startServer(secrets, extensionPath);
 }
 export function stopServer() {
-  if (server) {
-    server.close();
-  }
+  server?.close();
 }

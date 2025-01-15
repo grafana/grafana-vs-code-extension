@@ -109,7 +109,36 @@
           "order": 3
         }
       }
-    }
+    },
+    "walkthroughs": [
+      {
+        "id": "intro",
+        "title": "Getting started with VS Code for Grafana",
+        "description": "Just a few more steps before some Grafana magic in your editor!",
+        "steps": [
+          {
+            "id": "grafana_url_setting",
+            "title": "Provide the URL of your Grafana instance",
+            "description": "This extension uses data held by your Grafana instance to enable local previews of dashboards. **This access is purely read-only**, nothing will ever be written to the istance.\nIf you are using a local Grafana instance, the default value is ``http://localhost:3000``.\n[Configure Grafana instance URL](command:grafana-vscode.setGrafanaURL)",
+            "media": {
+              "image": "media/grafana_logo.png",
+							"altText": "Grafana logo"
+            },
+            "completionEvents": ["onSettingChanged:grafana-vscode.URL"]
+          },
+          {
+            "id": "grafana_service_account_token_setting",
+            "title": "Provide a service account token used to authenticate to Grafana",
+            "description": "The steps required to create a service account and an associated token can be found in [Grafana's documentation](https://grafana.com/docs/grafana/latest/administration/service-accounts/#create-a-service-account-in-grafana).\n[Configure Grafana service account token](command:grafana-vscode.setPassword)",
+            "media": {
+              "image": "media/grafana_logo.png",
+							"altText": "Grafana logo"
+            },
+            "completionEvents": ["onSettingChanged:grafana-vscode.service-account-token"]
+          }
+        ]
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "yarn run package",
@@ -131,7 +160,7 @@
     "@types/node": "18.x",
     "@types/source-map-support": "^0.5.8",
     "@types/uuid": "^9.0.6",
-    "@types/vscode": "^1.96.0",
+    "@types/vscode": "^1.76.0",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
     "@vscode/test-electron": "^2.2.3",
