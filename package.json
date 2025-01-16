@@ -135,6 +135,15 @@
 							"altText": "Grafana logo"
             },
             "completionEvents": ["onSettingChanged:grafana-vscode.service-account-token"]
+          },
+          {
+            "id": "preview_dashboards",
+            "title": "Preview dashboards",
+            "description": "Dashboards can be previewed locally, by right-clicking on a file or by calling the \"Edit in Grafana\" command.",
+            "media": {
+              "image": "media/preview_commands.png",
+							"altText": "Preview commands"
+            }
           }
         ]
       }
