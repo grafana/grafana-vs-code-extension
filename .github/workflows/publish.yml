@@ -18,7 +18,7 @@ jobs:
           persist-credentials: false
 
       - name: Install devbox
-        uses: jetify-com/devbox-install-action@a03caf5813591bc882139eba6ae947930a83a427 #v0.11.0
+        uses: jetify-com/devbox-install-action@734088efddca47cf44ff8a09289c6d0e51b73218 #v0.12.0
         with:
           enable-cache: 'true'
 
@@ -26,7 +26,7 @@ jobs:
         run: devbox run yarn install --frozen-lockfile
 
       - id: get-secrets
-        uses: grafana/shared-workflows/actions/get-vault-secrets@75804962c1ba608148988c1e2dc35fbb0ee21746
+        uses: grafana/shared-workflows/actions/get-vault-secrets@677accce1618bfce08f01c70db9625fd865a31c7
         with:
           # Secrets placed in the ci/repo/grafana/<repo>/<path> path in Vault
           repo_secrets: |
@@ -43,7 +43,7 @@ jobs:
         run: devbox run vsce publish --pat ${{ env.VS_MARKETPLACE_TOKEN }} --packagePath grafana-vscode.vsix
 
       - name: Create GitHub release
-        uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 #v1.15.0
+        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 #v1.16.0
         with:
           allowUpdates: true
           artifacts: "grafana-vscode.vsix"
