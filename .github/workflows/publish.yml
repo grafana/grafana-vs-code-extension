@@ -13,12 +13,12 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 #v5.0.0
         with:
           persist-credentials: false
 
       - name: Install devbox
-        uses: jetify-com/devbox-install-action@a03caf5813591bc882139eba6ae947930a83a427 #v0.11.0
+        uses: jetify-com/devbox-install-action@22b0f5500b14df4ea357ce673fbd4ced940ed6a1 #v0.13.0
         with:
           enable-cache: 'true'
 
@@ -26,7 +26,7 @@ jobs:
         run: devbox run yarn install --frozen-lockfile
 
       - id: get-secrets
-        uses: grafana/shared-workflows/actions/get-vault-secrets@75804962c1ba608148988c1e2dc35fbb0ee21746
+        uses: grafana/shared-workflows/actions/get-vault-secrets@b28cd59cb2326190f120066e09e7a9a121a5c4e1
         with:
           # Secrets placed in the ci/repo/grafana/<repo>/<path> path in Vault
           repo_secrets: |
@@ -43,7 +43,7 @@ jobs:
         run: devbox run vsce publish --pat ${{ env.VS_MARKETPLACE_TOKEN }} --packagePath grafana-vscode.vsix
 
       - name: Create GitHub release
-        uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 #v1.15.0
+        uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af #v1.18.0
         with:
           allowUpdates: true
           artifacts: "grafana-vscode.vsix"
