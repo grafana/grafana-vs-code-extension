@@ -26,7 +26,7 @@ jobs:
         run: devbox run yarn install --frozen-lockfile
 
       - id: get-secrets
-        uses: grafana/shared-workflows/actions/get-vault-secrets@b28cd59cb2326190f120066e09e7a9a121a5c4e1
+        uses: grafana/shared-workflows/actions/get-vault-secrets@8d8a34d8b4d078ee012c06f47ea74c016d3c2335
         with:
           # Secrets placed in the ci/repo/grafana/<repo>/<path> path in Vault
           repo_secrets: |
@@ -43,7 +43,7 @@ jobs:
         run: devbox run vsce publish --pat ${{ env.VS_MARKETPLACE_TOKEN }} --packagePath grafana-vscode.vsix
 
       - name: Create GitHub release
-        uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af #v1.18.0
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b #v1.20.0
         with:
           allowUpdates: true
           artifacts: "grafana-vscode.vsix"
