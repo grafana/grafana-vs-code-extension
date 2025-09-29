@@ -2,13 +2,17 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: grafana-vs-code-extension
-  title: VS Code Extension for Grafana
+  title: grafana-vs-code-extension
+  description: VS Code Extension for Grafana
+  tags:
+    - gitops
+  links:
+    - title: "Internal Slack Channel #client-admin-tooling"
+      type: slack
+      url: https://grafanalabs.enterprise.slack.com/archives/C018SLDD5MW
   annotations:
     github.com/project-slug: grafana/grafana-vs-code-extension
-  links:
-    - title: Slack Channel
-      url: https://raintank-corp.slack.com/archives/C018SLDD5MW
 spec:
   type: tool
   owner: group:default/platform-monitoring
-  lifecycle: production
+  lifecycle: experimental
