@@ -18,7 +18,7 @@ jobs:
           persist-credentials: false
 
       - name: Install devbox
-        uses: jetify-com/devbox-install-action@22b0f5500b14df4ea357ce673fbd4ced940ed6a1 #v0.13.0
+        uses: jetify-com/devbox-install-action@a0d2d53632934ae004f878c840055956d9f741b0 #v0.14.0
         with:
           enable-cache: 'true'
 
@@ -26,7 +26,7 @@ jobs:
         run: devbox run yarn install --frozen-lockfile
 
       - id: get-secrets
-        uses: grafana/shared-workflows/actions/get-vault-secrets@8d8a34d8b4d078ee012c06f47ea74c016d3c2335
+        uses: grafana/shared-workflows/actions/get-vault-secrets@052ae532a2d3babff8acdaeb640ba8ed944e5bb9
         with:
           # Secrets placed in the ci/repo/grafana/<repo>/<path> path in Vault
           repo_secrets: |
