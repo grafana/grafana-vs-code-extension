@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/main/.schema/devbox.schema.json",
   "packages": [
-    "nodejs_18@18.20",
+    "nodejs_18@18.20.8",
     "yarn@1.22",
     "vsce@2.26"
   ]
