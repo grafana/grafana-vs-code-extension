@@ -26,7 +26,7 @@ jobs:
         run: devbox run yarn install --frozen-lockfile
 
       - id: get-secrets
-        uses: grafana/shared-workflows/actions/get-vault-secrets@6b59374893555bf476179dfeb96013b80406102f
+        uses: grafana/shared-workflows/actions/get-vault-secrets@d38db1d025cb6f99bb21e420fa89dff42350c1c7
         with:
           # Secrets placed in the ci/repo/grafana/<repo>/<path> path in Vault
           repo_secrets: |
