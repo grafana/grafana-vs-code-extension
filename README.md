@@ -1,5 +1,11 @@
 # VS Code Extension for Grafana
 
+> [!IMPORTANT]
+> VS Code Extension for Grafana has been marked for deprecation. This extension has been undermaintained for a while, to avoid further bit rot we'll be deprecating and archiving this repository until further notice.
+
+> [!TIP]
+> The core idea of developing dashboards in a remote Grafana instance while storing them on disk locally has been integrated in `grafanactl resources serve` ([guide](https://grafana.github.io/grafanactl/guides/dashboards-as-code/)).
+
 Grafana has an extensive UI for editing its dashboards. For many, this is sufficient for their needs. If this is you, this extension is not for you.
 
 However, some wish to use software development tools (e.g. git) to manage their dashboards and other observability resources. Dashboards can be exported as JSON, however this JSON is hard to understand and interpret. This extension allows you to:
