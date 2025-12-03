@@ -1,7 +1,7 @@
 # VS Code Extension for Grafana
 
 > [!IMPORTANT]
-> VS Code Extension for Grafana has been marked for deprecation. This extension has been undermaintained for a while, to avoid further bit rot we'll be deprecating and archiving this repository until further notice.
+> VS Code Extension for Grafana has been marked for deprecation. This extension has been undermaintained for a while, to avoid further bit rot we'll be deprecating and archiving this repository in three months, until further notice. 
 
 > [!TIP]
 > The core idea of developing dashboards in a remote Grafana instance while storing them on disk locally has been integrated in `grafanactl resources serve` ([guide](https://grafana.github.io/grafanactl/guides/dashboards-as-code/)).
