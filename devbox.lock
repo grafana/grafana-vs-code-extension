@@ -82,51 +82,51 @@
         }
       }
     },
-    "vsce@2.26": {
-      "last_modified": "2024-05-22T06:18:38Z",
-      "resolved": "github:NixOS/nixpkgs/3f316d2a50699a78afe5e77ca486ad553169061e#vsce",
+    "vsce@2.31.1": {
+      "last_modified": "2024-08-14T11:41:26Z",
+      "resolved": "github:NixOS/nixpkgs/0cb2fd7c59fed0cd82ef858cbcbdb552b9a33465#vsce",
       "source": "devbox-search",
-      "version": "2.26.1",
+      "version": "2.31.1",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/ijx8dlx403q219b0981vickkgk2vvxfg-vsce-2.26.1",
+              "path": "/nix/store/v778wqcv60qxqk22wxla2b01gqag03zy-vsce-2.31.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/ijx8dlx403q219b0981vickkgk2vvxfg-vsce-2.26.1"
+          "store_path": "/nix/store/v778wqcv60qxqk22wxla2b01gqag03zy-vsce-2.31.1"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/0yicgcnvrqyfdh208lmylnad6g03syda-vsce-2.26.1",
+              "path": "/nix/store/2cz7blmhpach7is91nyb9pp4l3hba09p-vsce-2.31.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/0yicgcnvrqyfdh208lmylnad6g03syda-vsce-2.26.1"
+          "store_path": "/nix/store/2cz7blmhpach7is91nyb9pp4l3hba09p-vsce-2.31.1"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/48w3k1sz6r85n77g2pcn8f4dn6j18mb5-vsce-2.26.1",
+              "path": "/nix/store/ijygk3n4p5ydny57amy5g92kcgf8ra89-vsce-2.31.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/48w3k1sz6r85n77g2pcn8f4dn6j18mb5-vsce-2.26.1"
+          "store_path": "/nix/store/ijygk3n4p5ydny57amy5g92kcgf8ra89-vsce-2.31.1"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/aw41wckwmyd0vjb4fmlmxng46cdd1gwz-vsce-2.26.1",
+              "path": "/nix/store/a2r42nfp12741pgnr2qv0zcvfa8lfjn4-vsce-2.31.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/aw41wckwmyd0vjb4fmlmxng46cdd1gwz-vsce-2.26.1"
+          "store_path": "/nix/store/a2r42nfp12741pgnr2qv0zcvfa8lfjn4-vsce-2.31.1"
         }
       }
     },

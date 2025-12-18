@@ -3,6 +3,6 @@
   "packages": [
     "nodejs_18@18.20.8",
     "yarn@1.22",
-    "vsce@2.26"
+    "vsce@2.31.1"
   ]
 }
